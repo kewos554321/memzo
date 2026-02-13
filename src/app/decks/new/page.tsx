@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { useDecks } from "@/hooks/use-decks";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 
 export default function NewDeckPage() {
   const router = useRouter();
@@ -24,40 +19,58 @@ export default function NewDeckPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <Button variant="ghost" size="sm" asChild className="mb-6">
-        <Link href="/">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
-      </Button>
+    <div className="mx-auto max-w-2xl px-4 pb-6 pt-6">
+      <button
+        onClick={() => router.push("/")}
+        className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </button>
 
       <h1 className="mb-6 text-2xl font-bold">Create New Deck</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="title">Title</Label>
-          <Input
+          <label
+            htmlFor="title"
+            className="text-sm font-semibold text-foreground"
+          >
+            Title
+          </label>
+          <input
             id="title"
             placeholder="e.g. Japanese Vocabulary"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             autoFocus
+            className="clay-input w-full bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description">Description (optional)</Label>
-          <Textarea
+          <label
+            htmlFor="description"
+            className="text-sm font-semibold text-foreground"
+          >
+            Description (optional)
+          </label>
+          <textarea
             id="description"
             placeholder="What is this deck about?"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
+            className="clay-input w-full resize-none bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
           />
         </div>
-        <Button type="submit" disabled={!title.trim()}>
+        <button
+          type="submit"
+          disabled={!title.trim()}
+          className="clay-button inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
+        >
+          <Plus className="h-4 w-4" />
           Create Deck
-        </Button>
+        </button>
       </form>
     </div>
   );

@@ -4,10 +4,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Fredoka + Nunito from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-heading: 'Fredoka', sans-serif;
+  --font-body: 'Nunito', sans-serif;
+  --font-sans: 'Nunito', sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -38,6 +43,20 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-teal-50: #F0FDFA;
+  --color-teal-100: #CCFBF1;
+  --color-teal-200: #99F6E4;
+  --color-teal-300: #5EEAD4;
+  --color-teal-400: #2DD4BF;
+  --color-teal-500: #14B8A6;
+  --color-teal-600: #0D9488;
+  --color-teal-700: #0F766E;
+  --color-teal-800: #115E59;
+  --color-teal-900: #134E4A;
+  --color-orange-500: #EA580C;
+  --color-orange-600: #DC2626;
+  --color-success: #22C55E;
+  --color-error: #EF4444;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -48,81 +67,280 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 1.25rem;
+  --background: #F0FDFA;
+  --foreground: #134E4A;
+  --card: #FFFFFF;
+  --card-foreground: #134E4A;
+  --popover: #FFFFFF;
+  --popover-foreground: #134E4A;
+  --primary: #0D9488;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F0FDFA;
+  --secondary-foreground: #0F766E;
+  --muted: #CCFBF1;
+  --muted-foreground: #0F766E;
+  --accent: #2DD4BF;
+  --accent-foreground: #134E4A;
+  --destructive: #EF4444;
+  --border: #99F6E4;
+  --input: #CCFBF1;
+  --ring: #0D9488;
+  --chart-1: #0D9488;
+  --chart-2: #2DD4BF;
+  --chart-3: #EA580C;
+  --chart-4: #22C55E;
+  --chart-5: #EF4444;
+  --sidebar: #F0FDFA;
+  --sidebar-foreground: #134E4A;
+  --sidebar-primary: #0D9488;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #CCFBF1;
+  --sidebar-accent-foreground: #134E4A;
+  --sidebar-border: #99F6E4;
+  --sidebar-ring: #0D9488;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #0C1917;
+  --foreground: #CCFBF1;
+  --card: #132D27;
+  --card-foreground: #CCFBF1;
+  --popover: #132D27;
+  --popover-foreground: #CCFBF1;
+  --primary: #2DD4BF;
+  --primary-foreground: #0C1917;
+  --secondary: #1A3D35;
+  --secondary-foreground: #99F6E4;
+  --muted: #1A3D35;
+  --muted-foreground: #5EEAD4;
+  --accent: #14B8A6;
+  --accent-foreground: #F0FDFA;
+  --destructive: #EF4444;
+  --border: rgba(94, 234, 212, 0.2);
+  --input: rgba(94, 234, 212, 0.15);
+  --ring: #2DD4BF;
+  --chart-1: #2DD4BF;
+  --chart-2: #14B8A6;
+  --chart-3: #EA580C;
+  --chart-4: #22C55E;
+  --chart-5: #EF4444;
+  --sidebar: #132D27;
+  --sidebar-foreground: #CCFBF1;
+  --sidebar-primary: #2DD4BF;
+  --sidebar-primary-foreground: #0C1917;
+  --sidebar-accent: #1A3D35;
+  --sidebar-accent-foreground: #CCFBF1;
+  --sidebar-border: rgba(94, 234, 212, 0.2);
+  --sidebar-ring: #2DD4BF;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    @apply bg-background text-foreground;
+    font-family: 'Nunito', sans-serif;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka', sans-serif;
+  }
+}
+
+/* Claymorphism utility classes */
+.clay-card {
+  background: var(--card);
+  border: 3px solid var(--border);
+  border-radius: 20px;
+  box-shadow:
+    inset -2px -2px 6px rgba(0, 0, 0, 0.04),
+    4px 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clay-card:hover {
+  box-shadow:
+    inset -2px -2px 6px rgba(0, 0, 0, 0.04),
+    6px 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.clay-card:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.06),
+    2px 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.clay-button {
+  border: 3px solid transparent;
+  border-radius: 16px;
+  box-shadow:
+    inset -1px -1px 4px rgba(0, 0, 0, 0.05),
+    3px 3px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clay-button:active {
+  transform: scale(0.95);
+  box-shadow:
+    inset 1px 1px 4px rgba(0, 0, 0, 0.08),
+    1px 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.clay-input {
+  border: 3px solid var(--border);
+  border-radius: 16px;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.clay-input:focus {
+  border-color: var(--primary);
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.04),
+    0 0 0 3px rgba(13, 148, 136, 0.15);
+}
+
+/* Pastel accent strips for deck cards */
+.deck-accent-1 { background: linear-gradient(135deg, #FDBCB4, #FFD4CC); }
+.deck-accent-2 { background: linear-gradient(135deg, #ADD8E6, #C5E8F0); }
+.deck-accent-3 { background: linear-gradient(135deg, #98FF98, #B8FFBA); }
+.deck-accent-4 { background: linear-gradient(135deg, #E6E6FA, #F0E6FF); }
+.deck-accent-5 { background: linear-gradient(135deg, #FFE4B5, #FFF0D4); }
+.deck-accent-6 { background: linear-gradient(135deg, #FFB6C1, #FFD0D6); }
+
+/* Animation utilities */
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes pulseGreen {
+  0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
+@keyframes confetti {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+@keyframes fabBounce {
+  0% { transform: scale(0) rotate(-180deg); }
+  60% { transform: scale(1.1) rotate(10deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes progressFill {
+  from { width: 0%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+.animate-pulse-green {
+  animation: pulseGreen 0.6s ease-out;
+}
+
+.animate-fab-bounce {
+  animation: fabBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .clay-card,
+  .clay-card:hover,
+  .clay-button,
+  .clay-button:active {
+    transition: none;
+    transform: none;
+  }
+
+  .animate-bounce-in,
+  .animate-slide-up,
+  .animate-shake,
+  .animate-pulse-green,
+  .animate-fab-bounce,
+  .animate-shimmer {
+    animation: none;
+  }
+
+  .progress-bar {
+    transition: none;
+  }
+}
+
+/* Safe area insets for PWA */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+
+.mb-safe {
+  margin-bottom: max(env(safe-area-inset-bottom), 0px);
+}
+
+/* Bottom nav spacing for main content */
+.has-bottom-nav {
+  padding-bottom: 5rem;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
 }

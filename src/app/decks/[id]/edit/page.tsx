@@ -2,15 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Deck } from "@/lib/types";
 import { getDeck } from "@/lib/storage";
 import { useDecks } from "@/hooks/use-decks";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { AiImport } from "@/components/ai-import";
 
 export default function EditDeckPage() {
@@ -41,60 +36,87 @@ export default function EditDeckPage() {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    updateDeck(deck.id, { title: title.trim(), description: description.trim() });
+    updateDeck(deck.id, {
+      title: title.trim(),
+      description: description.trim(),
+    });
     router.push(`/decks/${deck.id}`);
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <Button variant="ghost" size="sm" asChild className="mb-6">
-        <Link href={`/decks/${deck.id}`}>
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Link>
-      </Button>
+    <div className="mx-auto max-w-2xl px-4 pb-6 pt-6">
+      <button
+        onClick={() => router.push(`/decks/${deck.id}`)}
+        className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </button>
 
       <h1 className="mb-6 text-2xl font-bold">Edit Deck</h1>
 
+      {/* Tabs */}
       <div className="mb-6 flex gap-2">
-        <Button
-          variant={activeTab === "info" ? "default" : "outline"}
-          size="sm"
+        <button
           onClick={() => setActiveTab("info")}
+          className={`clay-button px-4 py-2 text-sm font-semibold cursor-pointer ${
+            activeTab === "info"
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-secondary-foreground"
+          }`}
         >
           Deck Info
-        </Button>
-        <Button
-          variant={activeTab === "ai" ? "default" : "outline"}
-          size="sm"
+        </button>
+        <button
           onClick={() => setActiveTab("ai")}
+          className={`clay-button px-4 py-2 text-sm font-semibold cursor-pointer ${
+            activeTab === "ai"
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-secondary-foreground"
+          }`}
         >
           AI Generate
-        </Button>
+        </button>
       </div>
 
       {activeTab === "info" ? (
         <form onSubmit={handleSave} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
+            <label
+              htmlFor="title"
+              className="text-sm font-semibold text-foreground"
+            >
+              Title
+            </label>
+            <input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="clay-input w-full bg-card px-4 py-3 text-sm focus:outline-none"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
+            <label
+              htmlFor="description"
+              className="text-sm font-semibold text-foreground"
+            >
+              Description
+            </label>
+            <textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
+              className="clay-input w-full resize-none bg-card px-4 py-3 text-sm focus:outline-none"
             />
           </div>
-          <Button type="submit" disabled={!title.trim()}>
+          <button
+            type="submit"
+            disabled={!title.trim()}
+            className="clay-button inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
+          >
             Save Changes
-          </Button>
+          </button>
         </form>
       ) : (
         <AiImport

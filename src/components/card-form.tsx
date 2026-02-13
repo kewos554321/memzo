@@ -1,10 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
 
 interface CardFormProps {
@@ -38,33 +34,47 @@ export function CardForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="front">Front</Label>
-        <Input
+        <label htmlFor="front" className="text-sm font-semibold text-foreground">
+          Front
+        </label>
+        <input
           id="front"
           placeholder="Question or term..."
           value={front}
           onChange={(e) => setFront(e.target.value)}
+          className="clay-input w-full bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="back">Back</Label>
-        <Textarea
+        <label htmlFor="back" className="text-sm font-semibold text-foreground">
+          Back
+        </label>
+        <textarea
           id="back"
           placeholder="Answer or definition..."
           value={back}
           onChange={(e) => setBack(e.target.value)}
           rows={3}
+          className="clay-input w-full resize-none bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
         />
       </div>
       <div className="flex gap-2">
-        <Button type="submit" disabled={!front.trim() || !back.trim()}>
-          <Plus className="mr-2 h-4 w-4" />
+        <button
+          type="submit"
+          disabled={!front.trim() || !back.trim()}
+          className="clay-button inline-flex items-center gap-2 bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
+        >
+          <Plus className="h-4 w-4" />
           {submitLabel}
-        </Button>
+        </button>
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="clay-button bg-secondary px-4 py-2.5 text-sm font-semibold text-secondary-foreground cursor-pointer"
+          >
             Cancel
-          </Button>
+          </button>
         )}
       </div>
     </form>

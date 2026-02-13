@@ -10,10 +10,6 @@ import {
   Check,
   Trash2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 
 interface GeneratedCard {
   front: string;
@@ -103,25 +99,24 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-semibold">
+          <h3 className="text-lg font-bold">
             Generated {generatedCards.length} cards
           </h3>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
+            <button
               onClick={() => setGeneratedCards([])}
+              className="clay-button flex items-center gap-2 bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground cursor-pointer"
             >
-              <X className="mr-2 h-4 w-4" />
+              <X className="h-4 w-4" />
               Discard
-            </Button>
-            <Button
-              size="sm"
+            </button>
+            <button
               onClick={() => onImport(generatedCards)}
+              className="clay-button flex items-center gap-2 bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground cursor-pointer"
             >
-              <Check className="mr-2 h-4 w-4" />
+              <Check className="h-4 w-4" />
               Import All
-            </Button>
+            </button>
           </div>
         </div>
         <p className="text-sm text-muted-foreground">
@@ -130,38 +125,34 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
 
         <div className="space-y-3">
           {generatedCards.map((card, index) => (
-            <Card key={index}>
-              <CardContent className="pt-4">
-                <div className="flex items-start gap-2">
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <Input
-                      value={card.front}
-                      onChange={(e) =>
-                        updateCard(index, "front", e.target.value)
-                      }
-                      placeholder="Front"
-                      className="text-sm"
-                    />
-                    <Input
-                      value={card.back}
-                      onChange={(e) =>
-                        updateCard(index, "back", e.target.value)
-                      }
-                      placeholder="Back"
-                      className="text-sm"
-                    />
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 text-destructive"
-                    onClick={() => removeCard(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+            <div key={index} className="clay-card animate-slide-up p-4" style={{ animationDelay: `${index * 40}ms`, animationFillMode: "both" }}>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0 flex-1 space-y-2">
+                  <input
+                    value={card.front}
+                    onChange={(e) =>
+                      updateCard(index, "front", e.target.value)
+                    }
+                    placeholder="Front"
+                    className="clay-input w-full bg-card px-3 py-2 text-sm focus:outline-none"
+                  />
+                  <input
+                    value={card.back}
+                    onChange={(e) =>
+                      updateCard(index, "back", e.target.value)
+                    }
+                    placeholder="Back"
+                    className="clay-input w-full bg-card px-3 py-2 text-sm focus:outline-none"
+                  />
                 </div>
-              </CardContent>
-            </Card>
+                <button
+                  onClick={() => removeCard(index)}
+                  className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -171,30 +162,37 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
-        <Button
-          variant={mode === "text" ? "default" : "outline"}
-          size="sm"
+        <button
           onClick={() => setMode("text")}
+          className={`clay-button flex items-center gap-2 px-4 py-2 text-sm font-semibold cursor-pointer ${
+            mode === "text"
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-secondary-foreground"
+          }`}
         >
-          <FileText className="mr-2 h-4 w-4" />
+          <FileText className="h-4 w-4" />
           Text
-        </Button>
-        <Button
-          variant={mode === "image" ? "default" : "outline"}
-          size="sm"
+        </button>
+        <button
           onClick={() => setMode("image")}
+          className={`clay-button flex items-center gap-2 px-4 py-2 text-sm font-semibold cursor-pointer ${
+            mode === "image"
+              ? "bg-primary text-primary-foreground"
+              : "bg-secondary text-secondary-foreground"
+          }`}
         >
-          <ImagePlus className="mr-2 h-4 w-4" />
+          <ImagePlus className="h-4 w-4" />
           Image
-        </Button>
+        </button>
       </div>
 
       {mode === "text" ? (
-        <Textarea
+        <textarea
           placeholder="Paste your notes, textbook content, or any text here..."
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={8}
+          className="clay-input w-full resize-none bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
         />
       ) : (
         <div className="space-y-3">
@@ -204,12 +202,10 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
               <img
                 src={imagePreview}
                 alt="Upload preview"
-                className="max-h-64 rounded-lg border object-contain"
+                className="max-h-64 rounded-2xl border-3 border-border object-contain"
               />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="mt-2"
+              <button
+                className="clay-button mt-2 bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground cursor-pointer"
                 onClick={() => {
                   setImageFile(null);
                   setImagePreview(null);
@@ -217,15 +213,15 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
                 }}
               >
                 Remove
-              </Button>
+              </button>
             </div>
           ) : (
             <div
-              className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+              className="clay-card flex cursor-pointer flex-col items-center justify-center p-8 text-muted-foreground transition-colors hover:border-primary hover:text-primary"
               onClick={() => fileInputRef.current?.click()}
             >
               <ImagePlus className="mb-2 h-8 w-8" />
-              <p className="text-sm">Click to upload an image</p>
+              <p className="text-sm font-semibold">Click to upload an image</p>
               <p className="mt-1 text-xs">PNG, JPG, or WebP</p>
             </div>
           )}
@@ -240,17 +236,21 @@ export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
       )}
 
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p className="text-sm font-medium text-destructive">{error}</p>
       )}
 
-      <Button onClick={handleGenerate} disabled={!canGenerate || loading}>
+      <button
+        onClick={handleGenerate}
+        disabled={!canGenerate || loading}
+        className="clay-button inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
+      >
         {loading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
-          <Sparkles className="mr-2 h-4 w-4" />
+          <Sparkles className="h-4 w-4" />
         )}
         {loading ? "Generating..." : "Generate Cards"}
-      </Button>
+      </button>
     </div>
   );
 }
