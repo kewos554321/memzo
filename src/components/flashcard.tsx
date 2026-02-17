@@ -12,7 +12,8 @@ interface FlashcardProps {
 export function Flashcard({ front, back, isFlipped, onClick }: FlashcardProps) {
   return (
     <div
-      className="perspective-[1200px] mx-auto h-72 w-full max-w-sm cursor-pointer sm:h-80"
+      className="[perspective:1200px] mx-auto w-full cursor-pointer"
+      style={{ height: 280 }}
       onClick={onClick}
     >
       <div
@@ -23,24 +24,26 @@ export function Flashcard({ front, back, isFlipped, onClick }: FlashcardProps) {
         style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
       >
         {/* Front */}
-        <div className="clay-card absolute inset-0 flex flex-col items-center justify-center p-8 [backface-visibility:hidden]">
-          <span className="mb-3 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-border bg-card p-8 shadow-[0_8px_32px_#0D948825] [backface-visibility:hidden]">
+          <span className="rounded-full bg-primary px-3.5 py-1.5 font-body text-xs font-bold text-white">
             Question
           </span>
-          <p className="text-center text-xl font-bold leading-relaxed">
+          <p className="font-heading w-full text-center text-[36px] font-bold leading-tight text-foreground">
             {front}
           </p>
-          <p className="mt-4 text-xs font-medium text-muted-foreground">
+          <p className="font-body text-[13px] text-muted-foreground">
             Tap to reveal
           </p>
         </div>
 
         {/* Back */}
-        <div className="clay-card absolute inset-0 flex flex-col items-center justify-center border-accent p-8 [backface-visibility:hidden] [transform:rotateY(180deg)]">
-          <span className="mb-3 rounded-full bg-accent/20 px-3 py-1 text-xs font-bold text-accent-foreground">
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-[24px] border-2 border-border bg-card p-8 shadow-[0_8px_32px_#0D948825] [backface-visibility:hidden] [transform:rotateY(180deg)]">
+          <span className="rounded-full bg-primary/15 px-3.5 py-1.5 font-body text-xs font-bold text-primary">
             Answer
           </span>
-          <p className="text-center text-lg leading-relaxed">{back}</p>
+          <p className="font-body w-full text-center text-xl font-semibold leading-relaxed text-foreground">
+            {back}
+          </p>
         </div>
       </div>
     </div>

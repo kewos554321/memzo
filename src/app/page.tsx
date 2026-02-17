@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Search, Layers } from "lucide-react";
+import { Plus, Search, BookOpen } from "lucide-react";
 import { useDecks } from "@/hooks/use-decks";
 import { DeckCard } from "@/components/deck-card";
 
@@ -17,90 +17,96 @@ export default function HomePage() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-6 pt-6">
-      {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Memzo</h1>
-          <p className="mt-0.5 text-sm font-medium text-muted-foreground">
-            {decks.length} {decks.length === 1 ? "deck" : "decks"}
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
-          <Layers className="h-4 w-4" />
-          {decks.reduce((sum, d) => sum + d.cards.length, 0)} cards
+    <div className="flex min-h-[100dvh] flex-col bg-background">
+      <div className="flex-1 overflow-auto pb-24">
+        <div className="flex flex-col gap-5 px-5 pb-4 pt-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-0.5">
+              <h1 className="font-heading text-3xl font-bold text-foreground">
+                Memzo
+              </h1>
+              <p className="font-body text-sm font-medium text-muted-foreground">
+                {decks.length} {decks.length === 1 ? "collection" : "collections"}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-sm font-bold font-body text-primary-foreground">
+              {decks.reduce((sum, d) => sum + d.cards.length, 0)} cards
+            </div>
+          </div>
+
+          {/* Search bar */}
+          <div className="flex h-[50px] items-center gap-2.5 rounded-2xl border-2 border-border bg-card px-4 shadow-[0_4px_12px_#0D948820]">
+            <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Search collections..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-transparent font-body text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+            />
+          </div>
+
+          {/* Content */}
+          {loading ? (
+            <div className="flex flex-col gap-3.5">
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="clay-card h-28 animate-shimmer" />
+              ))}
+            </div>
+          ) : filtered.length === 0 && search ? (
+            <div className="py-16 text-center">
+              <Search className="mx-auto h-10 w-10 text-muted-foreground/40" />
+              <p className="mt-3 text-lg font-semibold text-muted-foreground">
+                No results
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground/70">
+                Try a different search term
+              </p>
+            </div>
+          ) : decks.length === 0 ? (
+            <div className="py-16 text-center">
+              <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
+                <BookOpen className="h-10 w-10 text-primary" />
+              </div>
+              <h2 className="font-heading text-xl font-bold">No collections yet</h2>
+              <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
+                Create your first flashcard collection and start learning
+              </p>
+              <Link
+                href="/decks/new"
+                className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold font-body text-primary-foreground"
+              >
+                <Plus className="h-5 w-5" />
+                New Collection
+              </Link>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3.5">
+              {filtered.map((deck, index) => (
+                <DeckCard
+                  key={deck.id}
+                  deck={deck}
+                  onDelete={deleteDeck}
+                  index={index}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Search bar */}
-      {decks.length > 0 && (
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search decks..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="clay-input w-full bg-card py-3 pl-11 pr-4 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
-          />
-        </div>
-      )}
-
-      {/* Content */}
-      {loading ? (
-        <div className="space-y-4">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="clay-card h-28 animate-shimmer" />
-          ))}
-        </div>
-      ) : filtered.length === 0 && search ? (
-        <div className="py-16 text-center">
-          <Search className="mx-auto h-10 w-10 text-muted-foreground/40" />
-          <p className="mt-3 text-lg font-semibold text-muted-foreground">
-            No results
-          </p>
-          <p className="mt-1 text-sm text-muted-foreground/70">
-            Try a different search term
-          </p>
-        </div>
-      ) : decks.length === 0 ? (
-        <div className="py-16 text-center">
-          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
-            <Layers className="h-10 w-10 text-primary" />
-          </div>
-          <h2 className="text-xl font-bold">No decks yet</h2>
-          <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-            Create your first flashcard deck and start learning
-          </p>
-          <Link
-            href="/decks/new"
-            className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold text-primary-foreground"
-          >
-            <Plus className="h-5 w-5" />
-            Create Deck
-          </Link>
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {filtered.map((deck, index) => (
-            <DeckCard
-              key={deck.id}
-              deck={deck}
-              onDelete={deleteDeck}
-              index={index}
-            />
-          ))}
-        </div>
-      )}
-
       {/* FAB */}
       {decks.length > 0 && (
-        <Link
-          href="/decks/new"
-          className="clay-button animate-fab-bounce fixed bottom-20 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg cursor-pointer"
-        >
-          <Plus className="h-6 w-6" strokeWidth={2.5} />
-        </Link>
+        <div className="fixed bottom-[88px] right-5 z-40">
+          <Link
+            href="/decks/new"
+            className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-3.5 font-body text-[15px] font-bold text-primary-foreground shadow-[0_6px_20px_#0D948840] cursor-pointer"
+          >
+            <Plus className="h-5 w-5" />
+            New Collection
+          </Link>
+        </div>
       )}
     </div>
   );

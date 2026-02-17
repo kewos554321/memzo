@@ -14,12 +14,17 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
-  // Hide bottom nav in deck study mode (full-screen)
-  if (/\/decks\/[^/]+\/study/.test(pathname)) return null;
+  // Hide bottom nav in full-screen modes
+  if (
+    /\/decks\/[^/]+\/study/.test(pathname) ||
+    /\/decks\/[^/]+\/study-method/.test(pathname) ||
+    pathname.startsWith("/scan")
+  )
+    return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t-3 border-border bg-card/95 backdrop-blur-md pb-safe">
-      <div className="mx-auto flex max-w-lg items-center justify-around px-4 py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">
+      <div className="mx-auto flex h-20 max-w-lg items-center justify-around px-2.5">
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -31,20 +36,27 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-2xl px-5 py-2 transition-all duration-200",
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                "flex w-20 flex-col items-center justify-center gap-1 rounded-2xl py-2.5 transition-colors",
+                isActive ? "bg-muted" : ""
               )}
             >
               <item.icon
                 className={cn(
-                  "h-5 w-5 transition-transform duration-200",
-                  isActive && "scale-110"
+                  "h-[22px] w-[22px]",
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
                 strokeWidth={isActive ? 2.5 : 2}
               />
-              <span className="text-xs font-semibold">{item.label}</span>
+              <span
+                className={cn(
+                  "font-body text-[11px]",
+                  isActive
+                    ? "font-bold text-primary"
+                    : "font-semibold text-muted-foreground"
+                )}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}

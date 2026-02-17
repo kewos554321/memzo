@@ -27,14 +27,16 @@ export default function StudyPage() {
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      {/* Minimal top bar */}
-      <div className="flex items-center justify-between px-4 pt-4">
-        <h1 className="truncate text-lg font-bold">{deck.title}</h1>
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-5 py-4">
+        <h1 className="font-heading truncate text-lg font-semibold text-foreground">
+          {deck.title}
+        </h1>
         <button
           onClick={() => router.push(`/decks/${deck.id}`)}
-          className="flex h-10 w-10 items-center justify-center rounded-2xl bg-muted text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-muted-foreground cursor-pointer"
         >
-          <X className="h-5 w-5" />
+          <X className="h-[18px] w-[18px]" />
         </button>
       </div>
 

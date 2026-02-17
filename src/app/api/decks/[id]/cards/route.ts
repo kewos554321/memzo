@@ -20,7 +20,7 @@ export async function POST(
   await prisma.deck.update({ where: { id: deckId }, data: {} });
 
   return NextResponse.json(
-    created.map((c) => ({
+    created.map((c: { id: string; front: string; back: string; createdAt: Date }) => ({
       id: c.id,
       front: c.front,
       back: c.back,

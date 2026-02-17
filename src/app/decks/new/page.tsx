@@ -11,67 +11,73 @@ export default function NewDeckPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    const deck = createDeck(title.trim(), description.trim());
+    const deck = await createDeck(title.trim(), description.trim());
     router.push(`/decks/${deck.id}`);
   };
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-6 pt-6">
-      <button
-        onClick={() => router.push("/")}
-        className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </button>
-
-      <h1 className="mb-6 text-2xl font-bold">Create New Deck</h1>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="title"
-            className="text-sm font-semibold text-foreground"
+    <div className="flex min-h-[100dvh] flex-col bg-background">
+      <div className="flex-1 overflow-auto pb-24">
+        <div className="flex flex-col gap-5 px-5 pb-4 pt-6">
+          {/* Back button */}
+          <button
+            onClick={() => router.push("/")}
+            className="flex w-fit items-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm font-semibold font-body text-foreground cursor-pointer"
           >
-            Title
-          </label>
-          <input
-            id="title"
-            placeholder="e.g. Japanese Vocabulary"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            autoFocus
-            className="clay-input w-full bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
-          />
-        </div>
-        <div className="space-y-2">
-          <label
-            htmlFor="description"
-            className="text-sm font-semibold text-foreground"
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+
+          {/* Title */}
+          <h1 className="font-heading text-[26px] font-bold text-foreground">
+            Create New Collection
+          </h1>
+
+          {/* Form card */}
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-5 rounded-[20px] border-2 border-border bg-card p-5 shadow-[0_4px_16px_#0D948818]"
           >
-            Description (optional)
-          </label>
-          <textarea
-            id="description"
-            placeholder="What is this deck about?"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="clay-input w-full resize-none bg-card px-4 py-3 text-sm placeholder:text-muted-foreground/60 focus:outline-none"
-          />
+            <div className="flex flex-col gap-2">
+              <label className="font-body text-sm font-bold text-foreground">
+                Collection Title
+              </label>
+              <input
+                placeholder="e.g. Japanese Vocabulary"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                autoFocus
+                className="flex h-[50px] items-center rounded-[14px] border-2 border-border bg-background px-4 font-body text-sm placeholder:text-muted-foreground/60 focus:outline-none"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="font-body text-sm font-bold text-foreground">
+                Description (optional)
+              </label>
+              <textarea
+                placeholder="What is this collection about?"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                className="resize-none rounded-[14px] border-2 border-border bg-background p-4 font-body text-sm placeholder:text-muted-foreground/60 focus:outline-none"
+              />
+            </div>
+          </form>
+
+          {/* Submit button */}
+          <button
+            onClick={handleSubmit}
+            disabled={!title.trim()}
+            className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
+          >
+            <Plus className="h-[18px] w-[18px]" />
+            Create Collection
+          </button>
         </div>
-        <button
-          type="submit"
-          disabled={!title.trim()}
-          className="clay-button inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
-        >
-          <Plus className="h-4 w-4" />
-          Create Deck
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
