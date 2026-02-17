@@ -23,8 +23,11 @@ export function BottomNav() {
     return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">
-      <div className="mx-auto flex h-20 max-w-lg items-stretch justify-around px-2.5">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card"
+      style={{paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}
+    >
+      <div className="mx-auto flex h-20 max-w-lg items-center justify-between px-2.5">
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -36,7 +39,7 @@ export function BottomNav() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex w-20 flex-col items-center justify-center gap-1 rounded-2xl py-2.5 transition-colors",
+                "flex w-20 flex-col items-center justify-center gap-1 rounded-[16px] py-2.5 transition-colors",
                 isActive ? "bg-muted" : ""
               )}
             >

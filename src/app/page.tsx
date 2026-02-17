@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <div className="flex-1 overflow-auto pb-24">
-        <div className="flex flex-col gap-5 px-5 pb-4 pt-6">
+        <div className="flex flex-col gap-5 px-5 pb-6 pt-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
@@ -98,7 +98,10 @@ export default function HomePage() {
       </div>
 
       {/* FAB */}
-      <div className="fixed bottom-[96px] right-5 z-40">
+      <div
+        className="fixed right-5 z-40"
+        style={{bottom: 'calc(80px + 16px + max(env(safe-area-inset-bottom), 1rem))'}}
+      >
         <Link
           href="/collections/new"
           className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-[14px] font-body text-[15px] font-bold text-primary-foreground shadow-[0_6px_20px_#0D948840] cursor-pointer"
