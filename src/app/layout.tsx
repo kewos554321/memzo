@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { BottomNav } from "@/components/bottom-nav";
+import { CollectionsProvider } from "@/providers/collections-provider";
 
 export const metadata: Metadata = {
   title: "Memzo",
@@ -29,8 +30,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <main className="has-bottom-nav min-h-dvh">{children}</main>
-        <BottomNav />
+        <CollectionsProvider>
+          <main className="has-bottom-nav min-h-dvh">{children}</main>
+          <BottomNav />
+        </CollectionsProvider>
       </body>
     </html>
   );
