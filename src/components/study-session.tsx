@@ -9,11 +9,11 @@ import { X, Check, RotateCcw, Trophy } from "lucide-react";
 
 interface StudySessionProps {
   cards: Card[];
-  deckId?: string;
+  collectionId?: string;
   onFinish: () => void;
 }
 
-export function StudySession({ cards, deckId, onFinish }: StudySessionProps) {
+export function StudySession({ cards, collectionId, onFinish }: StudySessionProps) {
   const {
     currentCard,
     currentIndex,
@@ -25,7 +25,7 @@ export function StudySession({ cards, deckId, onFinish }: StudySessionProps) {
     flip,
     answer,
     restart,
-  } = useStudy(cards, deckId);
+  } = useStudy(cards, collectionId);
 
   const [answerAnim, setAnswerAnim] = useState<"correct" | "wrong" | null>(null);
 

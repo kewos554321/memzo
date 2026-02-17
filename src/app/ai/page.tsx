@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Sparkles, Camera } from "lucide-react";
-import { useDecks } from "@/hooks/use-decks";
+import { useCollections } from "@/hooks/use-collections";
 
 const accentColors = [
   "#2DD4BF",
@@ -14,7 +14,7 @@ const accentColors = [
 ];
 
 export default function AiHubPage() {
-  const { decks, loading } = useDecks();
+  const { collections, loading } = useCollections();
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -51,14 +51,14 @@ export default function AiHubPage() {
             </div>
           </Link>
 
-          {/* Deck list */}
+          {/* Collection list */}
           {loading ? (
             <div className="flex flex-col gap-3">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="clay-card h-20 animate-shimmer" />
               ))}
             </div>
-          ) : decks.length === 0 ? (
+          ) : collections.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
                 <Sparkles className="h-10 w-10 text-primary" />
@@ -68,7 +68,7 @@ export default function AiHubPage() {
                 Create a collection first, then generate cards with AI
               </p>
               <Link
-                href="/decks/new"
+                href="/collections/new"
                 className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold font-body text-primary-foreground"
               >
                 Create Collection
@@ -76,12 +76,12 @@ export default function AiHubPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {decks.map((deck, index) => {
+              {collections.map((collection, index) => {
                 const accent = accentColors[index % accentColors.length];
                 return (
                   <Link
-                    key={deck.id}
-                    href={`/decks/${deck.id}/edit?tab=ai`}
+                    key={collection.id}
+                    href={`/collections/${collection.id}/edit?tab=ai`}
                     className="flex animate-slide-up items-center gap-3.5 rounded-[18px] border-2 border-border bg-card p-3.5 shadow-[0_4px_12px_#0D948818] cursor-pointer"
                     style={{
                       animationDelay: `${index * 60}ms`,
@@ -96,10 +96,10 @@ export default function AiHubPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-heading truncate font-bold text-foreground">
-                        {deck.title}
+                        {collection.title}
                       </h3>
                       <p className="font-body text-sm text-muted-foreground">
-                        {deck.cards.length} cards
+                        {collection.cards.length} cards
                       </p>
                     </div>
                     <span className="shrink-0 rounded-2xl bg-primary px-4 py-2 font-body text-sm font-bold text-white">

@@ -7,7 +7,7 @@ import { X, Image, Zap } from "lucide-react";
 export default function ScanPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const deckId = searchParams.get("deckId");
+  const collectionId = searchParams.get("collectionId");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -63,7 +63,7 @@ export default function ScanPage() {
       const dataUrl = e.target?.result as string;
       sessionStorage.setItem("scan_image_data", dataUrl);
       sessionStorage.setItem("scan_image_name", file.name);
-      sessionStorage.setItem("scan_deck_id", deckId ?? "");
+      sessionStorage.setItem("scan_deck_id", collectionId ?? "");
       // Stop camera before navigating
       streamRef.current?.getTracks().forEach((t) => t.stop());
       router.push(`/scan/result`);
@@ -78,8 +78,8 @@ export default function ScanPage() {
 
   const handleClose = () => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
-    if (deckId) {
-      router.push(`/decks/${deckId}`);
+    if (collectionId) {
+      router.push(`/collections/${collectionId}`);
     } else {
       router.push("/ai");
     }

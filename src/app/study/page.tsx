@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
-import { useDecks } from "@/hooks/use-decks";
+import { useCollections } from "@/hooks/use-collections";
 
 const accentColors = [
   "#2DD4BF",
@@ -14,8 +14,8 @@ const accentColors = [
 ];
 
 export default function StudyHubPage() {
-  const { decks, loading } = useDecks();
-  const studyable = decks.filter((d) => d.cards.length > 0);
+  const { collections, loading } = useCollections();
+  const studyable = collections.filter((c) => c.cards.length > 0);
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -43,12 +43,12 @@ export default function StudyHubPage() {
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
                 <BookOpen className="h-10 w-10 text-primary" />
               </div>
-              <h2 className="font-heading text-xl font-bold">No decks to study</h2>
+              <h2 className="font-heading text-xl font-bold">No collections to study</h2>
               <p className="mx-auto mt-2 max-w-xs font-body text-sm text-muted-foreground">
-                Create a deck and add some cards first
+                Create a collection and add some cards first
               </p>
               <Link
-                href="/decks/new"
+                href="/collections/new"
                 className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold font-body text-primary-foreground"
               >
                 Create Collection
@@ -56,12 +56,12 @@ export default function StudyHubPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {studyable.map((deck, index) => {
+              {studyable.map((collection, index) => {
                 const accent = accentColors[index % accentColors.length];
                 return (
                   <Link
-                    key={deck.id}
-                    href={`/decks/${deck.id}/study-method`}
+                    key={collection.id}
+                    href={`/collections/${collection.id}/study-method`}
                     className="flex animate-slide-up items-center gap-3.5 rounded-[18px] border-2 border-border bg-card p-3.5 shadow-[0_4px_12px_#0D948818] cursor-pointer"
                     style={{
                       animationDelay: `${index * 60}ms`,
@@ -76,10 +76,10 @@ export default function StudyHubPage() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <h3 className="font-heading truncate font-bold text-foreground">
-                        {deck.title}
+                        {collection.title}
                       </h3>
                       <p className="font-body text-sm text-muted-foreground">
-                        {deck.cards.length} cards
+                        {collection.cards.length} cards
                       </p>
                     </div>
                     <span className="shrink-0 rounded-2xl bg-[#EA580C] px-4 py-2 font-body text-sm font-bold text-white">

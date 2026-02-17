@@ -5,19 +5,20 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
-  BookOpen,
+  Layers,
   Plus,
   Trash2,
   Pencil,
   Sparkles,
-  ScanLine,
-  FileText,
+  Scan,
+  Upload,
+  Play,
   X,
   Check,
   Loader2,
 } from "lucide-react";
-import { Deck } from "@/lib/types";
-import { useDecks } from "@/hooks/use-decks";
+import { Collection } from "@/lib/types";
+import { useCollections } from "@/hooks/use-collections";
 import { CardForm } from "@/components/card-form";
 
 const accentColors = [
@@ -29,11 +30,11 @@ const accentColors = [
   "#22C55E",
 ];
 
-export default function DeckDetailPage() {
+export default function CollectionDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { addCard, updateCard, deleteCard, addCards } = useDecks();
-  const [deck, setDeck] = useState<Deck | null>(null);
+  const { addCard, updateCard, deleteCard, addCards } = useCollections();
+  const [collection, setCollection] = useState<Collection | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
@@ -41,24 +42,24 @@ export default function DeckDetailPage() {
   const [importing, setImporting] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/decks/${params.id}`)
+    fetch(`/api/collections/${params.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) {
           router.push("/");
           return;
         }
-        setDeck(d);
+        setCollection(d);
       });
   }, [params.id, router]);
 
   const refresh = async () => {
-    const d = await fetch(`/api/decks/${params.id}`).then((r) => r.json());
-    setDeck(d);
+    const d = await fetch(`/api/collections/${params.id}`).then((r) => r.json());
+    setCollection(d);
   };
 
   const handleImport = async () => {
-    if (!deck || !importText.trim()) return;
+    if (!collection || !importText.trim()) return;
     setImporting(true);
     try {
       const res = await fetch("/api/ai/generate", {
@@ -71,7 +72,7 @@ export default function DeckDetailPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        await addCards(deck.id, data.cards);
+        await addCards(collection.id, data.cards);
         await refresh();
         setShowImportModal(false);
         setImportText("");
@@ -81,9 +82,9 @@ export default function DeckDetailPage() {
     }
   };
 
-  if (!deck) return null;
+  if (!collection) return null;
 
-  const accentColor = accentColors[deck.title.length % accentColors.length];
+  const accentColor = accentColors[collection.title.length % accentColors.length];
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -98,7 +99,7 @@ export default function DeckDetailPage() {
             Back
           </button>
 
-          {/* Deck header card */}
+          {/* Collection header card */}
           <div
             className="overflow-hidden rounded-[20px] border-2 border-border bg-card shadow-[0_4px_16px_#0D948818]"
           >
@@ -107,44 +108,44 @@ export default function DeckDetailPage() {
               style={{ backgroundColor: accentColor }}
             />
             <div className="flex flex-col gap-2.5 px-[18px] py-4">
-              <h1 className="font-heading text-2xl font-bold text-foreground">
-                {deck.title}
+              <h1 className="font-heading text-[22px] font-bold text-foreground">
+                {collection.title}
               </h1>
-              {deck.description && (
+              {collection.description && (
                 <p className="font-body text-sm text-muted-foreground">
-                  {deck.description}
+                  {collection.description}
                 </p>
               )}
-              <div className="flex items-center gap-1.5 w-fit rounded-full bg-primary/10 px-3 py-1 text-xs font-bold font-body text-primary">
-                <BookOpen className="h-3 w-3" />
-                {deck.cards.length} cards
+              <div className="flex items-center gap-1 w-fit rounded-full bg-muted px-3 py-[5px] font-body text-[13px] font-semibold text-primary">
+                <Layers className="h-3.5 w-3.5" />
+                {collection.cards.length} cards
               </div>
             </div>
           </div>
 
           {/* Action row */}
           <div className="flex gap-2.5">
-            {deck.cards.length > 0 && (
+            {collection.cards.length > 0 && (
               <Link
-                href={`/decks/${deck.id}/study-method`}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#EA580C] px-5 py-3 text-sm font-bold font-body text-white cursor-pointer"
+                href={`/collections/${collection.id}/study-method`}
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#EA580C] px-5 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
               >
-                <BookOpen className="h-[18px] w-[18px]" />
+                <Play className="h-4 w-4" />
                 Study Now
               </Link>
             )}
             <Link
-              href={`/decks/${deck.id}/edit?tab=ai`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 text-sm font-bold font-body text-white cursor-pointer"
+              href={`/collections/${collection.id}/edit?tab=ai`}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
             >
-              <Sparkles className="h-[18px] w-[18px]" />
+              <Sparkles className="h-4 w-4" />
               AI Generate
             </Link>
             <Link
-              href={`/scan?deckId=${deck.id}`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-[#EA580C] bg-white px-4 py-3 text-sm font-bold font-body text-[#EA580C] cursor-pointer"
+              href={`/scan?collectionId=${collection.id}`}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-[#EA580C] bg-white px-4 py-3 font-body text-[15px] font-bold text-[#EA580C] cursor-pointer"
             >
-              <ScanLine className="h-[18px] w-[18px]" />
+              <Scan className="h-4 w-4" />
               Scan
             </Link>
           </div>
@@ -154,14 +155,17 @@ export default function DeckDetailPage() {
             <p className="font-heading text-base font-semibold text-foreground">
               Import Cards
             </p>
-            <div className="flex gap-2.5">
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => setShowImportModal(true)}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-4 py-3 text-sm font-semibold font-body text-foreground cursor-pointer"
+                className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-primary bg-card px-4 font-body text-[15px] font-bold text-primary shadow-[0_4px_16px_#0D948818] cursor-pointer"
               >
-                <FileText className="h-4 w-4 text-primary" />
-                Text / AI
+                <Upload className="h-5 w-5" />
+                Import from JSON
               </button>
+              <p className="font-body text-xs text-muted-foreground">
+                Upload a JSON file to add cards to this collection
+              </p>
             </div>
           </div>
 
@@ -175,9 +179,9 @@ export default function DeckDetailPage() {
                 setShowAddForm(!showAddForm);
                 setEditingCardId(null);
               }}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-sm font-semibold font-body text-white cursor-pointer"
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 font-body text-[13px] font-bold text-white cursor-pointer"
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-3.5 w-3.5" />
               Add Card
             </button>
           </div>
@@ -187,7 +191,7 @@ export default function DeckDetailPage() {
             <div className="clay-card animate-slide-up p-5">
               <CardForm
                 onSubmit={async (front, back) => {
-                  await addCard(deck.id, front, back);
+                  await addCard(collection.id, front, back);
                   await refresh();
                   setShowAddForm(false);
                 }}
@@ -197,10 +201,10 @@ export default function DeckDetailPage() {
           )}
 
           {/* Cards list */}
-          {deck.cards.length === 0 ? (
+          {collection.cards.length === 0 ? (
             <div className="py-12 text-center">
               <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
-                <BookOpen className="h-8 w-8 text-muted-foreground" />
+                <Layers className="h-8 w-8 text-muted-foreground" />
               </div>
               <p className="font-semibold text-muted-foreground">No cards yet</p>
               <p className="mt-1 text-sm text-muted-foreground/70">
@@ -209,10 +213,10 @@ export default function DeckDetailPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
-              {deck.cards.map((card, index) => (
+              {collection.cards.map((card, index) => (
                 <div
                   key={card.id}
-                  className="animate-slide-up overflow-hidden rounded-2xl border-2 border-border bg-card"
+                  className="animate-slide-up overflow-hidden rounded-[16px] border-2 border-border bg-card"
                   style={{
                     animationDelay: `${index * 40}ms`,
                     animationFillMode: "both",
@@ -225,7 +229,7 @@ export default function DeckDetailPage() {
                         initialBack={card.back}
                         submitLabel="Save"
                         onSubmit={async (front, back) => {
-                          await updateCard(deck.id, card.id, front, back);
+                          await updateCard(collection.id, card.id, front, back);
                           await refresh();
                           setEditingCardId(null);
                         }}
@@ -233,33 +237,36 @@ export default function DeckDetailPage() {
                       />
                     </div>
                   ) : (
-                    <div className="flex items-start gap-3 px-4 py-3.5">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-body font-semibold leading-snug text-foreground">
+                    <div className="flex items-center gap-3 px-4 py-[14px]">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted font-body text-xs font-bold text-primary">
+                        {index + 1}
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <p className="font-body text-[15px] font-bold text-foreground">
                           {card.front}
                         </p>
-                        <p className="mt-1 font-body text-sm leading-relaxed text-muted-foreground">
+                        <p className="font-body text-[13px] text-muted-foreground">
                           {card.back}
                         </p>
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={() => {
                             setEditingCardId(card.id);
                             setShowAddForm(false);
                           }}
-                          className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground cursor-pointer"
+                          className="text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
                         >
-                          <Pencil className="h-3.5 w-3.5" />
+                          <Pencil className="h-4 w-4" />
                         </button>
                         <button
                           onClick={async () => {
-                            await deleteCard(deck.id, card.id);
+                            await deleteCard(collection.id, card.id);
                             await refresh();
                           }}
-                          className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
+                          className="text-destructive transition-colors hover:text-destructive/80 cursor-pointer"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>

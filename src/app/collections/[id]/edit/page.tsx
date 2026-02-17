@@ -3,16 +3,16 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { Deck } from "@/lib/types";
-import { useDecks } from "@/hooks/use-decks";
+import { Collection } from "@/lib/types";
+import { useCollections } from "@/hooks/use-collections";
 import { AiImport } from "@/components/ai-import";
 
-export default function EditDeckPage() {
+export default function EditCollectionPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { updateDeck, addCards } = useDecks();
-  const [deck, setDeck] = useState<Deck | null>(null);
+  const { updateCollection, addCards } = useCollections();
+  const [collection, setCollection] = useState<Collection | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [activeTab, setActiveTab] = useState<"info" | "ai">(
@@ -20,39 +20,39 @@ export default function EditDeckPage() {
   );
 
   useEffect(() => {
-    fetch(`/api/decks/${params.id}`)
+    fetch(`/api/collections/${params.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) { router.push("/"); return; }
-        setDeck(d);
+        setCollection(d);
         setTitle(d.title);
         setDescription(d.description);
       });
   }, [params.id, router]);
 
-  if (!deck) return null;
+  if (!collection) return null;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    await updateDeck(deck.id, {
+    await updateCollection(collection.id, {
       title: title.trim(),
       description: description.trim(),
     });
-    router.push(`/decks/${deck.id}`);
+    router.push(`/collections/${collection.id}`);
   };
 
   return (
     <div className="mx-auto max-w-2xl px-4 pb-6 pt-6">
       <button
-        onClick={() => router.push(`/decks/${deck.id}`)}
+        onClick={() => router.push(`/collections/${collection.id}`)}
         className="mb-5 flex items-center gap-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
         Back
       </button>
 
-      <h1 className="mb-6 text-2xl font-bold">Edit Deck</h1>
+      <h1 className="mb-6 text-2xl font-bold">Edit Collection</h1>
 
       {/* Tabs */}
       <div className="mb-6 flex gap-2">
@@ -64,7 +64,7 @@ export default function EditDeckPage() {
               : "bg-secondary text-secondary-foreground"
           }`}
         >
-          Deck Info
+          Collection Info
         </button>
         <button
           onClick={() => setActiveTab("ai")}
@@ -119,10 +119,10 @@ export default function EditDeckPage() {
         </form>
       ) : (
         <AiImport
-          deckId={deck.id}
+          collectionId={collection.id}
           onImport={async (cards) => {
-            await addCards(deck.id, cards);
-            router.push(`/decks/${deck.id}`);
+            await addCards(collection.id, cards);
+            router.push(`/collections/${collection.id}`);
           }}
         />
       )}

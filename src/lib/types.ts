@@ -5,7 +5,7 @@ export interface Card {
   createdAt: number;
 }
 
-export interface Deck {
+export interface Collection {
   id: string;
   title: string;
   description: string;
@@ -20,7 +20,7 @@ export interface StudyResult {
 }
 
 export interface StudySession {
-  deckId: string;
+  collectionId: string;
   results: StudyResult[];
   completedAt: number;
 }

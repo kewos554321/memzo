@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Card, StudyResult } from "@/lib/types";
 
-export function useStudy(cards: Card[], deckId?: string) {
+export function useStudy(cards: Card[], collectionId?: string) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [results, setResults] = useState<StudyResult[]>([]);
@@ -30,19 +30,19 @@ export function useStudy(cards: Card[], deckId?: string) {
       const nextIndex = currentIndex + 1;
       setCurrentIndex(nextIndex);
 
-      if (nextIndex >= shuffled.length && deckId) {
+      if (nextIndex >= shuffled.length && collectionId) {
         fetch("/api/study-sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            deckId,
+            deckId: collectionId,
             results: newResults,
             completedAt: Date.now(),
           }),
         });
       }
     },
-    [currentCard, currentIndex, results, shuffled.length, deckId]
+    [currentCard, currentIndex, results, shuffled.length, collectionId]
   );
 
   const restart = useCallback(() => {

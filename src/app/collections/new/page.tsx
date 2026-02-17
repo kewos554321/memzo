@@ -3,19 +3,23 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
-import { useDecks } from "@/hooks/use-decks";
+import { useCollections } from "@/hooks/use-collections";
 
-export default function NewDeckPage() {
+export default function NewCollectionPage() {
   const router = useRouter();
-  const { createDeck } = useDecks();
+  const { createCollection } = useCollections();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCreate = async () => {
     if (!title.trim()) return;
-    const deck = await createDeck(title.trim(), description.trim());
-    router.push(`/decks/${deck.id}`);
+    const collection = await createCollection(title.trim(), description.trim());
+    router.push(`/collections/${collection.id}`);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCreate();
   };
 
   return (
@@ -69,7 +73,7 @@ export default function NewDeckPage() {
 
           {/* Submit button */}
           <button
-            onClick={handleSubmit}
+            onClick={handleCreate}
             disabled={!title.trim()}
             className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
           >

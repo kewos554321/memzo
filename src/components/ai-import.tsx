@@ -17,11 +17,11 @@ interface GeneratedCard {
 }
 
 interface AiImportProps {
-  deckId: string;
+  collectionId: string;
   onImport: (cards: GeneratedCard[]) => void;
 }
 
-export function AiImport({ deckId: _deckId, onImport }: AiImportProps) {
+export function AiImport({ collectionId: _collectionId, onImport }: AiImportProps) {
   const [mode, setMode] = useState<"text" | "image">("text");
   const [text, setText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);

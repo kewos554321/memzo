@@ -16,15 +16,15 @@ export function BottomNav() {
 
   // Hide bottom nav in full-screen modes
   if (
-    /\/decks\/[^/]+\/study/.test(pathname) ||
-    /\/decks\/[^/]+\/study-method/.test(pathname) ||
+    /\/collections\/[^/]+\/study/.test(pathname) ||
+    /\/collections\/[^/]+\/study-method/.test(pathname) ||
     pathname.startsWith("/scan")
   )
     return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card pb-safe">
-      <div className="mx-auto flex h-20 max-w-lg items-center justify-around px-2.5">
+      <div className="mx-auto flex h-20 max-w-lg items-stretch justify-around px-2.5">
         {navItems.map((item) => {
           const isActive =
             item.href === "/"

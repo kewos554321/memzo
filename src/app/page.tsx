@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Search, BookOpen } from "lucide-react";
-import { useDecks } from "@/hooks/use-decks";
-import { DeckCard } from "@/components/deck-card";
+import { Plus, Search, BookOpen, Layers } from "lucide-react";
+import { useCollections } from "@/hooks/use-collections";
+import { CollectionCard } from "@/components/collection-card";
 
 export default function HomePage() {
-  const { decks, loading, deleteDeck } = useDecks();
+  const { collections, loading, deleteCollection } = useCollections();
   const [search, setSearch] = useState("");
 
-  const filtered = decks.filter(
+  const filtered = collections.filter(
     (d) =>
       d.title.toLowerCase().includes(search.toLowerCase()) ||
       d.description.toLowerCase().includes(search.toLowerCase())
@@ -23,15 +23,16 @@ export default function HomePage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
-              <h1 className="font-heading text-3xl font-bold text-foreground">
+              <h1 className="font-heading text-[32px] font-bold text-foreground">
                 Memzo
               </h1>
-              <p className="font-body text-sm font-medium text-muted-foreground">
-                {decks.length} {decks.length === 1 ? "collection" : "collections"}
+              <p className="font-body text-sm font-normal text-muted-foreground">
+                {collections.length} {collections.length === 1 ? "collection" : "collections"}
               </p>
             </div>
-            <div className="flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-sm font-bold font-body text-primary-foreground">
-              {decks.reduce((sum, d) => sum + d.cards.length, 0)} cards
+            <div className="flex items-center gap-1.5 rounded-full bg-primary px-[14px] py-2 font-body text-[13px] font-semibold text-primary-foreground">
+              <Layers className="h-4 w-4" />
+              {collections.reduce((sum, d) => sum + d.cards.length, 0)} cards
             </div>
           </div>
 
@@ -49,7 +50,7 @@ export default function HomePage() {
 
           {/* Content */}
           {loading ? (
-            <div className="flex flex-col gap-3.5">
+            <div className="flex flex-col gap-[14px]">
               {[0, 1, 2].map((i) => (
                 <div key={i} className="clay-card h-28 animate-shimmer" />
               ))}
@@ -64,7 +65,7 @@ export default function HomePage() {
                 Try a different search term
               </p>
             </div>
-          ) : decks.length === 0 ? (
+          ) : collections.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
                 <BookOpen className="h-10 w-10 text-primary" />
@@ -74,7 +75,7 @@ export default function HomePage() {
                 Create your first flashcard collection and start learning
               </p>
               <Link
-                href="/decks/new"
+                href="/collections/new"
                 className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold font-body text-primary-foreground"
               >
                 <Plus className="h-5 w-5" />
@@ -82,12 +83,12 @@ export default function HomePage() {
               </Link>
             </div>
           ) : (
-            <div className="flex flex-col gap-3.5">
-              {filtered.map((deck, index) => (
-                <DeckCard
-                  key={deck.id}
-                  deck={deck}
-                  onDelete={deleteDeck}
+            <div className="flex flex-col gap-[14px]">
+              {filtered.map((collection, index) => (
+                <CollectionCard
+                  key={collection.id}
+                  collection={collection}
+                  onDelete={deleteCollection}
                   index={index}
                 />
               ))}
@@ -97,17 +98,15 @@ export default function HomePage() {
       </div>
 
       {/* FAB */}
-      {decks.length > 0 && (
-        <div className="fixed bottom-[88px] right-5 z-40">
-          <Link
-            href="/decks/new"
-            className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-3.5 font-body text-[15px] font-bold text-primary-foreground shadow-[0_6px_20px_#0D948840] cursor-pointer"
-          >
-            <Plus className="h-5 w-5" />
-            New Collection
-          </Link>
-        </div>
-      )}
+      <div className="fixed bottom-[96px] right-5 z-40">
+        <Link
+          href="/collections/new"
+          className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-[14px] font-body text-[15px] font-bold text-primary-foreground shadow-[0_6px_20px_#0D948840] cursor-pointer"
+        >
+          <Plus className="h-5 w-5" />
+          New Collection
+        </Link>
+      </div>
     </div>
   );
 }

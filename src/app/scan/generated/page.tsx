@@ -10,7 +10,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
-import { useDecks } from "@/hooks/use-decks";
+import { useCollections } from "@/hooks/use-collections";
 
 interface GeneratedCard {
   front: string;
@@ -19,13 +19,13 @@ interface GeneratedCard {
 
 export default function ScanGeneratedPage() {
   const router = useRouter();
-  const { decks, addCards } = useDecks();
+  const { collections, addCards } = useCollections();
   const [cards, setCards] = useState<GeneratedCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [deckId, setDeckId] = useState<string>("");
-  const [showDeckPicker, setShowDeckPicker] = useState(false);
+  const [collectionId, setCollectionId] = useState<string>("");
+  const [showCollectionPicker, setShowCollectionPicker] = useState(false);
 
   const generate = useCallback(async (text: string) => {
     setLoading(true);
@@ -47,8 +47,8 @@ export default function ScanGeneratedPage() {
 
   useEffect(() => {
     const text = sessionStorage.getItem("scan_extracted_text") ?? "";
-    const storedDeckId = sessionStorage.getItem("scan_deck_id") ?? "";
-    setDeckId(storedDeckId);
+    const storedCollectionId = sessionStorage.getItem("scan_deck_id") ?? "";
+    setCollectionId(storedCollectionId);
     if (text) {
       generate(text);
     } else {
@@ -70,29 +70,27 @@ export default function ScanGeneratedPage() {
     if (cards.length === 0) return;
     setSaving(true);
     try {
-      let targetDeckId = deckId;
-      if (!targetDeckId) {
-        // Create a new deck if none selected
-        setShowDeckPicker(true);
+      let targetId = collectionId;
+      if (!targetId) {
+        setShowCollectionPicker(true);
         setSaving(false);
         return;
       }
-      await addCards(targetDeckId, cards);
-      // Cleanup session
+      await addCards(targetId, cards);
       sessionStorage.removeItem("scan_image_data");
       sessionStorage.removeItem("scan_image_name");
       sessionStorage.removeItem("scan_extracted_text");
       sessionStorage.removeItem("scan_deck_id");
       setSaved(true);
-      setTimeout(() => router.push(`/decks/${targetDeckId}`), 800);
+      setTimeout(() => router.push(`/collections/${targetId}`), 800);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleSaveToDeck = async (id: string) => {
-    setDeckId(id);
-    setShowDeckPicker(false);
+  const handleSaveToCollection = async (id: string) => {
+    setCollectionId(id);
+    setShowCollectionPicker(false);
     setSaving(true);
     try {
       await addCards(id, cards);
@@ -101,7 +99,7 @@ export default function ScanGeneratedPage() {
       sessionStorage.removeItem("scan_extracted_text");
       sessionStorage.removeItem("scan_deck_id");
       setSaved(true);
-      setTimeout(() => router.push(`/decks/${id}`), 800);
+      setTimeout(() => router.push(`/collections/${id}`), 800);
     } finally {
       setSaving(false);
     }
@@ -221,26 +219,26 @@ export default function ScanGeneratedPage() {
         )}
       </div>
 
-      {/* Deck picker modal */}
-      {showDeckPicker && (
+      {/* Collection picker modal */}
+      {showCollectionPicker && (
         <div className="fixed inset-0 z-[60] flex items-end bg-black/40 backdrop-blur-sm">
           <div className="w-full rounded-t-[24px] bg-background p-5 pb-8 shadow-xl">
             <h3 className="mb-4 font-heading text-lg font-semibold text-foreground">
               Save to Collection
             </h3>
             <div className="flex flex-col gap-2.5 max-h-64 overflow-auto">
-              {decks.map((deck) => (
+              {collections.map((collection) => (
                 <button
-                  key={deck.id}
-                  onClick={() => handleSaveToDeck(deck.id)}
+                  key={collection.id}
+                  onClick={() => handleSaveToCollection(collection.id)}
                   className="flex items-center gap-3 rounded-2xl border-2 border-border bg-card p-3.5 text-left cursor-pointer hover:border-primary"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-body font-semibold text-foreground">
-                      {deck.title}
+                      {collection.title}
                     </p>
                     <p className="font-body text-sm text-muted-foreground">
-                      {deck.cards.length} cards
+                      {collection.cards.length} cards
                     </p>
                   </div>
                   <Check className="h-4 w-4 text-primary opacity-0 group-hover:opacity-100" />

@@ -1,17 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Card, Deck } from "@/lib/types";
+import { Card, Collection } from "@/lib/types";
 
-export function useDecks() {
-  const [decks, setDecks] = useState<Deck[]>([]);
+export function useCollections() {
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/decks");
+    const res = await fetch("/api/collections");
     const data = await res.json();
-    setDecks(data);
+    setCollections(data);
     setLoading(false);
   }, []);
 
@@ -19,23 +19,23 @@ export function useDecks() {
     refresh();
   }, [refresh]);
 
-  const createDeck = useCallback(
-    async (title: string, description: string): Promise<Deck> => {
-      const res = await fetch("/api/decks", {
+  const createCollection = useCallback(
+    async (title: string, description: string): Promise<Collection> => {
+      const res = await fetch("/api/collections", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, description }),
       });
-      const deck = await res.json();
+      const collection = await res.json();
       await refresh();
-      return deck;
+      return collection;
     },
     [refresh]
   );
 
-  const updateDeck = useCallback(
-    async (id: string, updates: Partial<Pick<Deck, "title" | "description">>) => {
-      await fetch(`/api/decks/${id}`, {
+  const updateCollection = useCallback(
+    async (id: string, updates: Partial<Pick<Collection, "title" | "description">>) => {
+      await fetch(`/api/collections/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -45,17 +45,17 @@ export function useDecks() {
     [refresh]
   );
 
-  const deleteDeck = useCallback(
+  const deleteCollection = useCallback(
     async (id: string) => {
-      await fetch(`/api/decks/${id}`, { method: "DELETE" });
+      await fetch(`/api/collections/${id}`, { method: "DELETE" });
       await refresh();
     },
     [refresh]
   );
 
   const addCard = useCallback(
-    async (deckId: string, front: string, back: string): Promise<Card | undefined> => {
-      const res = await fetch(`/api/decks/${deckId}/cards`, {
+    async (collectionId: string, front: string, back: string): Promise<Card | undefined> => {
+      const res = await fetch(`/api/collections/${collectionId}/cards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cards: [{ front, back }] }),
@@ -68,8 +68,8 @@ export function useDecks() {
   );
 
   const updateCard = useCallback(
-    async (deckId: string, cardId: string, front: string, back: string) => {
-      await fetch(`/api/decks/${deckId}/cards/${cardId}`, {
+    async (collectionId: string, cardId: string, front: string, back: string) => {
+      await fetch(`/api/collections/${collectionId}/cards/${cardId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ front, back }),
@@ -80,16 +80,16 @@ export function useDecks() {
   );
 
   const deleteCard = useCallback(
-    async (deckId: string, cardId: string) => {
-      await fetch(`/api/decks/${deckId}/cards/${cardId}`, { method: "DELETE" });
+    async (collectionId: string, cardId: string) => {
+      await fetch(`/api/collections/${collectionId}/cards/${cardId}`, { method: "DELETE" });
       await refresh();
     },
     [refresh]
   );
 
   const addCards = useCallback(
-    async (deckId: string, cards: { front: string; back: string }[]) => {
-      await fetch(`/api/decks/${deckId}/cards`, {
+    async (collectionId: string, cards: { front: string; back: string }[]) => {
+      await fetch(`/api/collections/${collectionId}/cards`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cards }),
@@ -100,11 +100,11 @@ export function useDecks() {
   );
 
   return {
-    decks,
+    collections,
     loading,
-    createDeck,
-    updateDeck,
-    deleteDeck,
+    createCollection,
+    updateCollection,
+    deleteCollection,
     addCard,
     updateCard,
     deleteCard,
