@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pencil": {
+      "command": "/Users/kewos/.cursor/extensions/highagency.pencildev-0.6.25-universal/out/mcp-server-darwin-arm64",
+      "args": ["--app", "desktop"]
+    }
+  }
+}
