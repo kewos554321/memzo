@@ -24,7 +24,7 @@ export function BottomNav() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card"
+      className="fixed bottom-0 left-0 right-0 z-50 rounded-[16px] border-t border-border bg-card"
       style={{paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}
     >
       <div className="mx-auto flex h-20 max-w-lg items-center justify-between px-2.5">

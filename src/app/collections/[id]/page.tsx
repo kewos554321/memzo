@@ -89,7 +89,7 @@ export default function CollectionDetailPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <div className="flex-1 overflow-auto pb-24">
-        <div className="flex flex-col gap-5 px-5 pb-4 pt-6">
+        <div className="flex flex-col gap-5 px-5 pb-6 pt-6">
           {/* Back button */}
           <button
             onClick={() => router.push("/")}

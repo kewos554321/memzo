@@ -152,7 +152,10 @@ export default function ScanPage() {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between bg-background px-10 py-5">
+      <div
+        className="flex items-center justify-between bg-background px-10 py-5"
+        style={{paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))'}}
+      >
         {/* Gallery */}
         <button
           onClick={() => fileInputRef.current?.click()}

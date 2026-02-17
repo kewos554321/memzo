@@ -46,7 +46,7 @@ export default function ScanResultPage() {
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col gap-4 overflow-auto px-5 pb-5">
+      <div className="flex flex-1 flex-col gap-4 overflow-auto px-5 pb-24">
         {/* Scanned image thumbnail */}
         <div
           className="flex h-[140px] w-full items-center justify-center gap-2 rounded-2xl"

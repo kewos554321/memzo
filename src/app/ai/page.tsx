@@ -19,7 +19,7 @@ export default function AiHubPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <div className="flex-1 overflow-auto pb-24">
-        <div className="flex flex-col gap-5 px-5 pb-4 pt-6">
+        <div className="flex flex-col gap-5 px-5 pb-6 pt-6">
           {/* Header */}
           <div className="flex flex-col gap-1">
             <h1 className="font-heading text-[32px] font-bold text-foreground">

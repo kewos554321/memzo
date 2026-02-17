@@ -135,7 +135,7 @@ export default function ScanGeneratedPage() {
       </div>
 
       {/* Content */}
-      <div className="flex flex-1 flex-col gap-4 overflow-auto px-5 pb-5">
+      <div className="flex flex-1 flex-col gap-4 overflow-auto px-5 pb-24">
         {loading ? (
           <div className="flex flex-1 items-center justify-center">
             <div className="flex flex-col items-center gap-3">
