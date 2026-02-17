@@ -9,8 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^2.0.20",
     "@ai-sdk/openai": "^3.0.28",
-    "@prisma/client": "^7.4.0",
+    "@prisma/client": "^5.19.0",
     "@serwist/next": "^9.5.5",
     "ai": "^6.0.85",
     "class-variance-authority": "^0.7.1",
@@ -32,7 +33,7 @@
     "@types/uuid": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "prisma": "^6.19.2",
+    "prisma": "^5.19.0",
     "serwist": "^9.5.5",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",

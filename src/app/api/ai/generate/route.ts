@@ -12,10 +12,24 @@ const cardSchema = z.object({
   ),
 });
 
-const cardSystemPrompt = `You are a flashcard generator. Given text content, extract key concepts and create flashcards.
-Each card should have a clear, concise question on the front and a complete answer on the back.
-Generate between 3-20 cards depending on the content length.
-If the content is in a specific language, create cards in that same language.`;
+const cardSystemPrompt = `You are a smart flashcard generator. Analyze the input content and generate flashcards in the most appropriate format:
+
+1. **If the input is a list of words or vocabulary**: Create word cards where:
+   - Front: The word/term
+   - Back: Definition, pronunciation, or example usage
+
+2. **If the input is explanatory text, notes, or educational content**: Create Q&A cards where:
+   - Front: A clear question or topic
+   - Back: The answer or explanation
+
+3. **If the input appears to be instructions or requests for specific content**: Honor the request directly.
+
+Guidelines:
+- Generate between 3-20 cards depending on content length
+- Keep answers concise but complete
+- Preserve the original language of the input
+- For non-English content, provide translations or explanations as needed
+- Make cards easy to study and remember`;
 
 export async function POST(req: NextRequest) {
   try {

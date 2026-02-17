@@ -1,9 +1,5 @@
+import { deepseek } from "@ai-sdk/deepseek";
 import { createOpenAI } from "@ai-sdk/openai";
-
-const deepseek = createOpenAI({
-  baseURL: "https://api.deepseek.com",
-  apiKey: process.env.DEEPSEEK_API_KEY,
-});
 
 const qwen = createOpenAI({
   baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
