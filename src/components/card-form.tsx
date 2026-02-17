@@ -34,7 +34,7 @@ export function CardForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <label htmlFor="front" className="text-sm font-semibold text-foreground">
+        <label htmlFor="front" className="font-body text-sm font-bold text-foreground">
           Front
         </label>
         <input
@@ -46,7 +46,7 @@ export function CardForm({
         />
       </div>
       <div className="space-y-2">
-        <label htmlFor="back" className="text-sm font-semibold text-foreground">
+        <label htmlFor="back" className="font-body text-sm font-bold text-foreground">
           Back
         </label>
         <textarea

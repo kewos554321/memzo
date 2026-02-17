@@ -99,7 +99,7 @@ export function AiImport({ collectionId: _collectionId, onImport }: AiImportProp
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold">
+          <h3 className="font-heading text-lg font-bold text-foreground">
             Generated {generatedCards.length} cards
           </h3>
           <div className="flex gap-2">
@@ -119,7 +119,7 @@ export function AiImport({ collectionId: _collectionId, onImport }: AiImportProp
             </button>
           </div>
         </div>
-        <p className="text-sm text-muted-foreground">
+        <p className="font-body text-sm text-muted-foreground">
           Review and edit the cards before importing.
         </p>
 
