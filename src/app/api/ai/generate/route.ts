@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { generateObject } from "ai";
+import { generateObject, generateText } from "ai";
 import { z } from "zod";
-import { textModel, visionModel } from "@/lib/ai";
+import { textModel, ocrModel } from "@/lib/ai";
 
 const cardSchema = z.object({
   cards: z.array(
@@ -12,7 +12,7 @@ const cardSchema = z.object({
   ),
 });
 
-const systemPrompt = `You are a flashcard generator. Given content (text or image), extract key concepts and create flashcards.
+const cardSystemPrompt = `You are a flashcard generator. Given text content, extract key concepts and create flashcards.
 Each card should have a clear, concise question on the front and a complete answer on the back.
 Generate between 3-20 cards depending on the content length.
 If the content is in a specific language, create cards in that same language.`;
@@ -30,15 +30,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let sourceText = text ?? "";
+
     if (image) {
       const bytes = await image.arrayBuffer();
       const base64 = Buffer.from(bytes).toString("base64");
       const mimeType = image.type || "image/jpeg";
 
-      const { object } = await generateObject({
-        model: visionModel,
-        schema: cardSchema,
-        system: systemPrompt,
+      // Step 1: OCR only — extract raw text from image (cheap)
+      const { text: extracted } = await generateText({
+        model: ocrModel,
         messages: [
           {
             role: "user",
@@ -49,21 +50,22 @@ export async function POST(req: NextRequest) {
               },
               {
                 type: "text",
-                text: "Generate flashcards from this image. Extract all key information.",
+                text: "Extract all text from this image. Output only the raw text, no commentary.",
               },
             ],
           },
         ],
       });
 
-      return NextResponse.json(object);
+      sourceText = extracted;
     }
 
+    // Step 2: Text → structured flashcard JSON (cheap DeepSeek)
     const { object } = await generateObject({
       model: textModel,
       schema: cardSchema,
-      system: systemPrompt,
-      prompt: `Generate flashcards from the following content:\n\n${text}`,
+      system: cardSystemPrompt,
+      prompt: `Generate flashcards from the following content:\n\n${sourceText}`,
     });
 
     return NextResponse.json(object);

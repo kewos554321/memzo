@@ -12,7 +12,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Deck } from "@/lib/types";
-import { getDeck } from "@/lib/storage";
 import { useDecks } from "@/hooks/use-decks";
 import { Button } from "@/components/ui/button";
 import { CardForm } from "@/components/card-form";
@@ -26,17 +25,17 @@ export default function DeckDetailPage() {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
 
   useEffect(() => {
-    const d = getDeck(params.id);
-    if (!d) {
-      router.push("/");
-      return;
-    }
-    setDeck(d);
+    fetch(`/api/decks/${params.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) { router.push("/"); return; }
+        setDeck(d);
+      });
   }, [params.id, router]);
 
-  const refresh = () => {
-    const d = getDeck(params.id);
-    if (d) setDeck(d);
+  const refresh = async () => {
+    const d = await fetch(`/api/decks/${params.id}`).then((r) => r.json());
+    setDeck(d);
   };
 
   if (!deck) return null;
@@ -114,9 +113,9 @@ export default function DeckDetailPage() {
       {showAddForm && (
         <div className="clay-card mb-6 animate-slide-up p-5">
           <CardForm
-            onSubmit={(front, back) => {
-              addCard(deck.id, front, back);
-              refresh();
+            onSubmit={async (front, back) => {
+              await addCard(deck.id, front, back);
+              await refresh();
               setShowAddForm(false);
             }}
             onCancel={() => setShowAddForm(false)}
@@ -152,9 +151,9 @@ export default function DeckDetailPage() {
                     initialFront={card.front}
                     initialBack={card.back}
                     submitLabel="Save"
-                    onSubmit={(front, back) => {
-                      updateCard(deck.id, card.id, front, back);
-                      refresh();
+                    onSubmit={async (front, back) => {
+                      await updateCard(deck.id, card.id, front, back);
+                      await refresh();
                       setEditingCardId(null);
                     }}
                     onCancel={() => setEditingCardId(null)}
@@ -184,9 +183,9 @@ export default function DeckDetailPage() {
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button
-                      onClick={() => {
-                        deleteCard(deck.id, card.id);
-                        refresh();
+                      onClick={async () => {
+                        await deleteCard(deck.id, card.id);
+                        await refresh();
                       }}
                       className="rounded-xl p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                     >

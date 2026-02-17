@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Card, StudyResult } from "@/lib/types";
 
-export function useStudy(cards: Card[]) {
+export function useStudy(cards: Card[], deckId?: string) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [results, setResults] = useState<StudyResult[]>([]);
@@ -24,11 +24,25 @@ export function useStudy(cards: Card[]) {
   const answer = useCallback(
     (known: boolean) => {
       if (!currentCard) return;
-      setResults((prev) => [...prev, { cardId: currentCard.id, known }]);
+      const newResults = [...results, { cardId: currentCard.id, known }];
+      setResults(newResults);
       setIsFlipped(false);
-      setCurrentIndex((prev) => prev + 1);
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+
+      if (nextIndex >= shuffled.length && deckId) {
+        fetch("/api/study-sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            deckId,
+            results: newResults,
+            completedAt: Date.now(),
+          }),
+        });
+      }
     },
-    [currentCard]
+    [currentCard, currentIndex, results, shuffled.length, deckId]
   );
 
   const restart = useCallback(() => {

@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Deck {
+  id            String         @id @default(cuid())
+  title         String
+  description   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  cards         Card[]
+  studySessions StudySession[]
+}
+
+model Card {
+  id           String        @id @default(cuid())
+  front        String
+  back         String
+  createdAt    DateTime      @default(now())
+  deckId       String
+  deck         Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  studyResults StudyResult[]
+}
+
+model StudySession {
+  id          String        @id @default(cuid())
+  deckId      String
+  deck        Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
+  completedAt DateTime      @default(now())
+  results     StudyResult[]
+}
+
+model StudyResult {
+  id             String       @id @default(cuid())
+  known          Boolean
+  cardId         String
+  card           Card         @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  studySessionId String
+  studySession   StudySession @relation(fields: [studySessionId], references: [id], onDelete: Cascade)
+}

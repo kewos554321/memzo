@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { Deck } from "@/lib/types";
-import { getDeck } from "@/lib/storage";
 import { StudySession } from "@/components/study-session";
 
 export default function StudyPage() {
@@ -13,12 +12,15 @@ export default function StudyPage() {
   const [deck, setDeck] = useState<Deck | null>(null);
 
   useEffect(() => {
-    const d = getDeck(params.id);
-    if (!d || d.cards.length === 0) {
-      router.push(d ? `/decks/${d.id}` : "/");
-      return;
-    }
-    setDeck(d);
+    fetch(`/api/decks/${params.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d || d.cards.length === 0) {
+          router.push(d ? `/decks/${d.id}` : "/");
+          return;
+        }
+        setDeck(d);
+      });
   }, [params.id, router]);
 
   if (!deck) return null;
@@ -40,6 +42,7 @@ export default function StudyPage() {
       <div className="flex-1">
         <StudySession
           cards={deck.cards}
+          deckId={deck.id}
           onFinish={() => router.push(`/decks/${deck.id}`)}
         />
       </div>

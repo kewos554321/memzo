@@ -1,9 +1,17 @@
 import { createOpenAI } from "@ai-sdk/openai";
 
-export const openrouter = createOpenAI({
-  baseURL: "https://openrouter.ai/api/v1",
-  apiKey: process.env.OPENROUTER_API_KEY,
+const deepseek = createOpenAI({
+  baseURL: "https://api.deepseek.com",
+  apiKey: process.env.DEEPSEEK_API_KEY,
 });
 
-export const textModel = openrouter("deepseek/deepseek-chat-v3-0324");
-export const visionModel = openrouter("qwen/qwen2.5-vl-72b-instruct");
+const qwen = createOpenAI({
+  baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  apiKey: process.env.QWEN_API_KEY,
+});
+
+// Text → flashcard JSON (cheap, high quality)
+export const textModel = deepseek("deepseek-chat");
+
+// Image → OCR only (cheaper vision model, just extract text)
+export const ocrModel = qwen("qwen-vl-plus");

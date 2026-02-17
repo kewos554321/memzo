@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Deck } from "@/lib/types";
-import { getDeck } from "@/lib/storage";
 import { useDecks } from "@/hooks/use-decks";
 import { AiImport } from "@/components/ai-import";
 
@@ -21,22 +20,22 @@ export default function EditDeckPage() {
   );
 
   useEffect(() => {
-    const d = getDeck(params.id);
-    if (!d) {
-      router.push("/");
-      return;
-    }
-    setDeck(d);
-    setTitle(d.title);
-    setDescription(d.description);
+    fetch(`/api/decks/${params.id}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d) { router.push("/"); return; }
+        setDeck(d);
+        setTitle(d.title);
+        setDescription(d.description);
+      });
   }, [params.id, router]);
 
   if (!deck) return null;
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    updateDeck(deck.id, {
+    await updateDeck(deck.id, {
       title: title.trim(),
       description: description.trim(),
     });
@@ -121,8 +120,8 @@ export default function EditDeckPage() {
       ) : (
         <AiImport
           deckId={deck.id}
-          onImport={(cards) => {
-            addCards(deck.id, cards);
+          onImport={async (cards) => {
+            await addCards(deck.id, cards);
             router.push(`/decks/${deck.id}`);
           }}
         />

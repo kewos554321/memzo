@@ -1,20 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { v4 as uuid } from "uuid";
 import { Card, Deck } from "@/lib/types";
-import {
-  getDecks,
-  saveDeck,
-  deleteDeck as removeDeck,
-} from "@/lib/storage";
 
 export function useDecks() {
   const [decks, setDecks] = useState<Deck[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const refresh = useCallback(() => {
-    setDecks(getDecks());
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    const res = await fetch("/api/decks");
+    const data = await res.json();
+    setDecks(data);
     setLoading(false);
   }, []);
 
@@ -23,97 +20,81 @@ export function useDecks() {
   }, [refresh]);
 
   const createDeck = useCallback(
-    (title: string, description: string) => {
-      const now = Date.now();
-      const deck: Deck = {
-        id: uuid(),
-        title,
-        description,
-        cards: [],
-        createdAt: now,
-        updatedAt: now,
-      };
-      saveDeck(deck);
-      refresh();
+    async (title: string, description: string): Promise<Deck> => {
+      const res = await fetch("/api/decks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, description }),
+      });
+      const deck = await res.json();
+      await refresh();
       return deck;
     },
     [refresh]
   );
 
   const updateDeck = useCallback(
-    (id: string, updates: Partial<Pick<Deck, "title" | "description">>) => {
-      const deck = getDecks().find((d) => d.id === id);
-      if (!deck) return;
-      const updated = { ...deck, ...updates, updatedAt: Date.now() };
-      saveDeck(updated);
-      refresh();
+    async (id: string, updates: Partial<Pick<Deck, "title" | "description">>) => {
+      await fetch(`/api/decks/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      });
+      await refresh();
     },
     [refresh]
   );
 
   const deleteDeck = useCallback(
-    (id: string) => {
-      removeDeck(id);
-      refresh();
+    async (id: string) => {
+      await fetch(`/api/decks/${id}`, { method: "DELETE" });
+      await refresh();
     },
     [refresh]
   );
 
   const addCard = useCallback(
-    (deckId: string, front: string, back: string) => {
-      const deck = getDecks().find((d) => d.id === deckId);
-      if (!deck) return;
-      const card: Card = { id: uuid(), front, back, createdAt: Date.now() };
-      deck.cards.push(card);
-      deck.updatedAt = Date.now();
-      saveDeck(deck);
-      refresh();
-      return card;
+    async (deckId: string, front: string, back: string): Promise<Card | undefined> => {
+      const res = await fetch(`/api/decks/${deckId}/cards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cards: [{ front, back }] }),
+      });
+      const cards: Card[] = await res.json();
+      await refresh();
+      return cards[0];
     },
     [refresh]
   );
 
   const updateCard = useCallback(
-    (deckId: string, cardId: string, front: string, back: string) => {
-      const deck = getDecks().find((d) => d.id === deckId);
-      if (!deck) return;
-      const card = deck.cards.find((c) => c.id === cardId);
-      if (!card) return;
-      card.front = front;
-      card.back = back;
-      deck.updatedAt = Date.now();
-      saveDeck(deck);
-      refresh();
+    async (deckId: string, cardId: string, front: string, back: string) => {
+      await fetch(`/api/decks/${deckId}/cards/${cardId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ front, back }),
+      });
+      await refresh();
     },
     [refresh]
   );
 
   const deleteCard = useCallback(
-    (deckId: string, cardId: string) => {
-      const deck = getDecks().find((d) => d.id === deckId);
-      if (!deck) return;
-      deck.cards = deck.cards.filter((c) => c.id !== cardId);
-      deck.updatedAt = Date.now();
-      saveDeck(deck);
-      refresh();
+    async (deckId: string, cardId: string) => {
+      await fetch(`/api/decks/${deckId}/cards/${cardId}`, { method: "DELETE" });
+      await refresh();
     },
     [refresh]
   );
 
   const addCards = useCallback(
-    (deckId: string, cards: { front: string; back: string }[]) => {
-      const deck = getDecks().find((d) => d.id === deckId);
-      if (!deck) return;
-      const newCards: Card[] = cards.map((c) => ({
-        id: uuid(),
-        front: c.front,
-        back: c.back,
-        createdAt: Date.now(),
-      }));
-      deck.cards.push(...newCards);
-      deck.updatedAt = Date.now();
-      saveDeck(deck);
-      refresh();
+    async (deckId: string, cards: { front: string; back: string }[]) => {
+      await fetch(`/api/decks/${deckId}/cards`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cards }),
+      });
+      await refresh();
     },
     [refresh]
   );
