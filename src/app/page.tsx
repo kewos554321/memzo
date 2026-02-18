@@ -49,13 +49,7 @@ export default function HomePage() {
           </div>
 
           {/* Content */}
-          {loading ? (
-            <div className="flex flex-col gap-[14px]">
-              {[0, 1, 2].map((i) => (
-                <div key={i} className="clay-card h-28 animate-shimmer" />
-              ))}
-            </div>
-          ) : filtered.length === 0 && search ? (
+          {!loading && filtered.length === 0 && search ? (
             <div className="py-16 text-center">
               <Search className="mx-auto h-10 w-10 text-muted-foreground/40" />
               <p className="mt-3 text-lg font-semibold text-muted-foreground">
@@ -65,7 +59,7 @@ export default function HomePage() {
                 Try a different search term
               </p>
             </div>
-          ) : collections.length === 0 ? (
+          ) : !loading && collections.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
                 <BookOpen className="h-10 w-10 text-primary" />
