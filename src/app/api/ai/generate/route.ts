@@ -3,6 +3,10 @@ import { generateObject, generateText } from "ai";
 import { z } from "zod";
 import { textModel, ocrModel } from "@/lib/ai";
 
+export const maxDuration = 60;
+
+export const dynamic = "force-dynamic";
+
 const cardSchema = z.object({
   cards: z.array(
     z.object({
@@ -71,7 +75,14 @@ export async function POST(req: NextRequest) {
         ],
       });
 
-      sourceText = extracted;
+      sourceText = extracted?.trim() ?? "";
+
+      if (!sourceText) {
+        return NextResponse.json(
+          { error: "Could not extract text from image. Please try a clearer image." },
+          { status: 422 }
+        );
+      }
     }
 
     // Step 2: Text → structured flashcard JSON (cheap DeepSeek)

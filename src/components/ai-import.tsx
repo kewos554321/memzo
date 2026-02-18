@@ -67,6 +67,9 @@ export function AiImport({ collectionId: _collectionId, onImport }: AiImportProp
       }
 
       const data = await res.json();
+      if (!data.cards || data.cards.length === 0) {
+        throw new Error("No cards could be generated. Please try with different content.");
+      }
       setGeneratedCards(data.cards);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

@@ -8,4 +8,9 @@ const withSerwist = withSerwistInit({
 
 export default withSerwist({
   turbopack: {},
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
 });

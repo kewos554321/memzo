@@ -2,7 +2,7 @@ import { deepseek } from "@ai-sdk/deepseek";
 import { createOpenAI } from "@ai-sdk/openai";
 
 const qwen = createOpenAI({
-  baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
+  baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
   apiKey: process.env.QWEN_API_KEY,
 });
 
@@ -10,4 +10,5 @@ const qwen = createOpenAI({
 export const textModel = deepseek("deepseek-chat");
 
 // Image → OCR only (cheaper vision model, just extract text)
-export const ocrModel = qwen("qwen-vl-plus");
+// Use .chat() to force /v1/chat/completions (DashScope doesn't support /v1/responses)
+export const ocrModel = qwen.chat("qwen-vl-plus");
