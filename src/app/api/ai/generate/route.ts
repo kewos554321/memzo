@@ -35,21 +35,6 @@ Guidelines:
 - For non-English content, provide translations or explanations as needed
 - Make cards easy to study and remember`;
 
-function getLocaleInstruction(acceptLanguage: string | null): string {
-  if (!acceptLanguage) return "";
-  const primary = acceptLanguage.split(",")[0].trim().toLowerCase();
-  if (primary.startsWith("zh-tw") || primary.startsWith("zh-hant")) {
-    return "- Respond in Traditional Chinese (繁體中文)";
-  }
-  if (primary.startsWith("zh-cn") || primary.startsWith("zh-hans") || primary.startsWith("zh")) {
-    return "- Respond in Simplified Chinese (简体中文)";
-  }
-  if (primary.startsWith("ja")) return "- Respond in Japanese (日本語)";
-  if (primary.startsWith("ko")) return "- Respond in Korean (한국어)";
-  // For other languages, let the AI match the input language naturally
-  return "";
-}
-
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -102,11 +87,6 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Text → structured flashcard JSON (cheap DeepSeek)
-    const localeInstruction = getLocaleInstruction(req.headers.get("accept-language"));
-    const system = localeInstruction
-      ? `${cardSystemPrompt}\n${localeInstruction}`
-      : cardSystemPrompt;
-
     const prompt = helperPrompt
       ? `Generate flashcards from the following content:\n\n${sourceText}\n\nAdditional instructions: ${helperPrompt}`
       : `Generate flashcards from the following content:\n\n${sourceText}`;
@@ -114,7 +94,7 @@ export async function POST(req: NextRequest) {
     const { object } = await generateObject({
       model: textModel,
       schema: cardSchema,
-      system,
+      system: cardSystemPrompt,
       prompt,
     });
 
