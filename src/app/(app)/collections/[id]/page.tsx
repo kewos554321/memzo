@@ -10,7 +10,6 @@ import {
   Trash2,
   Pencil,
   Sparkles,
-  Scan,
   Upload,
   Play,
   X,
@@ -20,15 +19,6 @@ import {
 import { Collection } from "@/lib/types";
 import { useCollections } from "@/hooks/use-collections";
 import { CardForm } from "@/components/card-form";
-
-const accentColors = [
-  "#2DD4BF",
-  "#F97316",
-  "#8B5CF6",
-  "#EC4899",
-  "#3B82F6",
-  "#22C55E",
-];
 
 export default function CollectionDetailPage() {
   const params = useParams<{ id: string }>();
@@ -141,7 +131,7 @@ export default function CollectionDetailPage() {
 
   if (!collection) return null;
 
-  const accentColor = accentColors[collection.title.length % accentColors.length];
+  const accentColor = "#2DD4BF";
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -182,28 +172,19 @@ export default function CollectionDetailPage() {
 
           {/* Action row */}
           <div className="flex gap-2.5">
-            {collection.cards.length > 0 && (
-              <Link
-                href={`/collections/${collection.id}/study-method`}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#EA580C] px-5 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
-              >
-                <Play className="h-4 w-4" />
-                Study Now
-              </Link>
-            )}
             <Link
-              href={`/collections/${collection.id}/edit?tab=ai`}
+              href={`/collections/${collection.id}/study-method`}
+              className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#EA580C] px-5 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
+            >
+              <Play className="h-4 w-4" />
+              Study Now
+            </Link>
+            <Link
+              href={`/collections/${collection.id}/ai`}
               className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
             >
               <Sparkles className="h-4 w-4" />
               AI Generate
-            </Link>
-            <Link
-              href={`/scan?collectionId=${collection.id}`}
-              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border-2 border-[#EA580C] bg-white px-4 py-3 font-body text-[15px] font-bold text-[#EA580C] cursor-pointer"
-            >
-              <Scan className="h-4 w-4" />
-              Scan
             </Link>
           </div>
 

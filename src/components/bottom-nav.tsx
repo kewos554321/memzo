@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, Sparkles } from "lucide-react";
+import { Home, BookOpen, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/study", icon: BookOpen, label: "Study" },
-  { href: "/ai", icon: Sparkles, label: "AI" },
+  { href: "/profile", icon: User, label: "Profile" },
 ];
 
 export function BottomNav() {
@@ -17,14 +17,13 @@ export function BottomNav() {
   // Hide bottom nav in full-screen modes
   if (
     /\/collections\/[^/]+\/study/.test(pathname) ||
-    /\/collections\/[^/]+\/study-method/.test(pathname) ||
-    pathname.startsWith("/scan")
+    /\/collections\/[^/]+\/study-method/.test(pathname)
   )
     return null;
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 rounded-[16px] border-t border-border bg-card"
+      className="fixed bottom-0 left-0 right-0 z-50 rounded-[16px] border-t border-border bg-card md:hidden"
       style={{paddingBottom: 'env(safe-area-inset-bottom, 0px)'}}
     >
       <div className="mx-auto flex h-20 max-w-lg items-center justify-between px-2.5">

@@ -17,14 +17,7 @@ interface CollectionCardProps {
   index: number;
 }
 
-const accentColors = [
-  "#2DD4BF",
-  "#F97316",
-  "#A78BFA",
-  "#EC4899",
-  "#3B82F6",
-  "#22C55E",
-];
+const ACCENT_COLOR = "#2DD4BF";
 
 function getRelativeTime(date: string | number | Date): string {
   const diffDays = Math.floor(
@@ -39,7 +32,7 @@ function getRelativeTime(date: string | number | Date): string {
 }
 
 export function CollectionCard({ collection, onDelete, index }: CollectionCardProps) {
-  const accentColor = accentColors[index % accentColors.length];
+  const accentColor = ACCENT_COLOR;
   const updatedAt = collection.updatedAt ? getRelativeTime(collection.updatedAt) : null;
 
   return (

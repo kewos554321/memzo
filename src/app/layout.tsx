@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
-import { BottomNav } from "@/components/bottom-nav";
 import { CollectionsProvider } from "@/providers/collections-provider";
 
 const fredoka = Fredoka({
@@ -46,8 +45,7 @@ export default function RootLayout({
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body className="antialiased">
         <CollectionsProvider>
-          <main className="has-bottom-nav min-h-dvh">{children}</main>
-          <BottomNav />
+          {children}
         </CollectionsProvider>
       </body>
     </html>
