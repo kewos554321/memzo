@@ -2,19 +2,53 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, Image } from "lucide-react";
+import { ArrowLeft, ArrowRight, Image, Loader2 } from "lucide-react";
 
 export default function ScanResultPage() {
   const router = useRouter();
   const [imageData, setImageData] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string>("");
   const [scannedText, setScannedText] = useState("");
+  const [isOcring, setIsOcring] = useState(false);
+  const [ocrError, setOcrError] = useState(false);
 
   useEffect(() => {
     const data = sessionStorage.getItem("scan_image_data");
     const name = sessionStorage.getItem("scan_image_name") ?? "image.jpg";
     setImageData(data);
     setImageName(name);
+
+    if (!data) return;
+
+    // Auto-OCR on mount
+    const runOcr = async () => {
+      setIsOcring(true);
+      setOcrError(false);
+      try {
+        // Convert data URL to File
+        const res = await fetch(data);
+        const blob = await res.blob();
+        const file = new File([blob], name, { type: blob.type || "image/jpeg" });
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch("/api/ai/ocr", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("OCR failed");
+        const json = await response.json();
+        setScannedText(json.text ?? "");
+      } catch {
+        setOcrError(true);
+      } finally {
+        setIsOcring(false);
+      }
+    };
+
+    runOcr();
   }, []);
 
   const handleNext = () => {
@@ -72,23 +106,42 @@ export default function ScanResultPage() {
           Vocabulary Text
         </h2>
         <p className="font-body text-sm text-muted-foreground -mt-2">
-          Type or paste the vocabulary from your image to generate flashcards.
+          {isOcring
+            ? "Extracting text from image..."
+            : "Review and edit the extracted text before generating flashcards."}
         </p>
 
         {/* Editable text area */}
-        <div className="flex flex-1 rounded-2xl border-2 border-border bg-card p-4">
-          <textarea
-            value={scannedText}
-            onChange={(e) => setScannedText(e.target.value)}
-            placeholder={"e.g.\nありがとう - Thank you\nこんにちは - Hello\nさようなら - Goodbye"}
-            className="flex-1 resize-none bg-transparent font-body text-[13px] leading-relaxed text-foreground focus:outline-none w-full"
-          />
+        <div className="relative flex flex-1 rounded-2xl border-2 border-border bg-card p-4">
+          {isOcring ? (
+            <div className="flex flex-1 items-center justify-center gap-2 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="font-body text-sm">Reading image...</span>
+            </div>
+          ) : (
+            <textarea
+              value={scannedText}
+              onChange={(e) => setScannedText(e.target.value)}
+              placeholder={
+                ocrError
+                  ? "OCR failed. Type your vocabulary here manually.\n\ne.g.\nありがとう - Thank you\nこんにちは - Hello"
+                  : "e.g.\nありがとう - Thank you\nこんにちは - Hello\nさようなら - Goodbye"
+              }
+              className="flex-1 resize-none bg-transparent font-body text-[13px] leading-relaxed text-foreground focus:outline-none w-full"
+            />
+          )}
         </div>
+
+        {ocrError && (
+          <p className="font-body text-xs text-orange-500 -mt-2">
+            Could not extract text automatically. You can type it manually.
+          </p>
+        )}
 
         {/* Next button */}
         <button
           onClick={handleNext}
-          disabled={!scannedText.trim()}
+          disabled={!scannedText.trim() || isOcring}
           className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
         >
           <ArrowRight className="h-5 w-5" />
