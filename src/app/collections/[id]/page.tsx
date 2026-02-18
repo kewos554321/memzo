@@ -40,6 +40,9 @@ export default function CollectionDetailPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
+  const [showJsonImportModal, setShowJsonImportModal] = useState(false);
+  const [jsonText, setJsonText] = useState("");
+  const [jsonImporting, setJsonImporting] = useState(false);
 
   useEffect(() => {
     fetch(`/api/collections/${params.id}`)
@@ -79,6 +82,60 @@ export default function CollectionDetailPage() {
       }
     } finally {
       setImporting(false);
+    }
+  };
+
+  const handleJsonImport = async () => {
+    if (!collection || !jsonText.trim()) return;
+    setJsonImporting(true);
+    try {
+      const data = JSON.parse(jsonText);
+      if (!Array.isArray(data)) {
+        throw new Error("JSON must be an array");
+      }
+      if (data.length === 0) {
+        throw new Error("Array is empty");
+      }
+
+      // Detect format and convert
+      const firstItem = data[0];
+      let cards: { front: string; back: string }[] = [];
+
+      if ("front" in firstItem && "back" in firstItem) {
+        // Format A: already correct format
+        cards = data.map((item: any) => ({
+          front: String(item.front || ""),
+          back: String(item.back || ""),
+        }));
+      } else if ("word" in firstItem && "definition" in firstItem) {
+        // Format B: convert to format A
+        cards = data.map((item: any) => ({
+          front: String(item.word || ""),
+          back: item.example
+            ? `${String(item.definition || "")}\n\nExample: ${String(item.example || "")}`
+            : String(item.definition || ""),
+        }));
+      } else {
+        throw new Error(
+          "JSON format not recognized. Use {front, back} or {word, definition, example}"
+        );
+      }
+
+      // Filter out cards with missing required fields
+      const validCards = cards.filter((card) => card.front && card.back);
+      if (validCards.length === 0) {
+        throw new Error("No valid cards found (missing front/back or word/definition)");
+      }
+
+      await addCards(collection.id, validCards);
+      await refresh();
+      setShowJsonImportModal(false);
+      setJsonText("");
+    } catch (err) {
+      console.error("JSON import error:", err);
+      alert(err instanceof Error ? err.message : "Failed to parse JSON");
+    } finally {
+      setJsonImporting(false);
     }
   };
 
@@ -157,7 +214,7 @@ export default function CollectionDetailPage() {
             </p>
             <div className="flex flex-col gap-2">
               <button
-                onClick={() => setShowImportModal(true)}
+                onClick={() => setShowJsonImportModal(true)}
                 className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-primary bg-card px-4 font-body text-[15px] font-bold text-primary shadow-[0_4px_16px_#0D948818] cursor-pointer"
               >
                 <Upload className="h-5 w-5" />
@@ -278,10 +335,10 @@ export default function CollectionDetailPage() {
         </div>
       </div>
 
-      {/* Import Modal */}
+      {/* Import Modal - AI */}
       {showImportModal && (
         <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm">
-          <div className="w-full rounded-t-[24px] bg-background p-5 pb-8 shadow-xl">
+          <div className="w-full rounded-t-[24px] bg-background p-5 pb-32 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
               <h3 className="font-heading text-lg font-semibold">Import Cards with AI</h3>
               <button
@@ -312,6 +369,49 @@ export default function CollectionDetailPage() {
                 <Check className="h-5 w-5" />
               )}
               {importing ? "Generating..." : "Generate & Import"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Import Modal - JSON */}
+      {showJsonImportModal && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm">
+          <div className="w-full rounded-t-[24px] bg-background p-5 pb-32 shadow-xl">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-heading text-lg font-semibold">Import from JSON</h3>
+              <button
+                onClick={() => { setShowJsonImportModal(false); setJsonText(""); }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <p className="mb-3 font-body text-sm text-muted-foreground">
+              Paste JSON to import cards. Supported formats:
+            </p>
+            <div className="mb-3 space-y-2 text-xs text-muted-foreground">
+              <p><code className="bg-muted/50 px-2 py-1 rounded">{"[{\"front\": \"word\", \"back\": \"definition\"}]"}</code></p>
+              <p><code className="bg-muted/50 px-2 py-1 rounded">{"[{\"word\": \"...\", \"definition\": \"...\", \"example\": \"...\"}]"}</code></p>
+            </div>
+            <textarea
+              placeholder="Paste your JSON here..."
+              value={jsonText}
+              onChange={(e) => setJsonText(e.target.value)}
+              rows={6}
+              className="mb-4 w-full resize-none rounded-2xl border-2 border-border bg-card px-4 py-3 font-body font-mono text-sm placeholder:text-muted-foreground/60 focus:outline-none"
+            />
+            <button
+              onClick={handleJsonImport}
+              disabled={!jsonText.trim() || jsonImporting}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-body text-base font-bold text-white disabled:opacity-50 cursor-pointer"
+            >
+              {jsonImporting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Check className="h-5 w-5" />
+              )}
+              {jsonImporting ? "Importing..." : "Import Cards"}
             </button>
           </div>
         </div>
