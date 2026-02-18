@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const text = formData.get("text") as string | null;
     const image = formData.get("image") as File | null;
+    const helperPrompt = formData.get("helperPrompt") as string | null;
 
     if (!text && !image) {
       return NextResponse.json(
@@ -106,11 +107,15 @@ export async function POST(req: NextRequest) {
       ? `${cardSystemPrompt}\n${localeInstruction}`
       : cardSystemPrompt;
 
+    const prompt = helperPrompt
+      ? `Generate flashcards from the following content:\n\n${sourceText}\n\nAdditional instructions: ${helperPrompt}`
+      : `Generate flashcards from the following content:\n\n${sourceText}`;
+
     const { object } = await generateObject({
       model: textModel,
       schema: cardSchema,
       system,
-      prompt: `Generate flashcards from the following content:\n\n${sourceText}`,
+      prompt,
     });
 
     return NextResponse.json(object);
