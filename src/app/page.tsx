@@ -68,13 +68,6 @@ export default function HomePage() {
               <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
                 Create your first flashcard collection and start learning
               </p>
-              <Link
-                href="/collections/new"
-                className="clay-button mt-6 inline-flex items-center gap-2 bg-primary px-6 py-3 font-semibold font-body text-primary-foreground"
-              >
-                <Plus className="h-5 w-5" />
-                New Collection
-              </Link>
             </div>
           ) : (
             <div className="flex flex-col gap-[14px]">
