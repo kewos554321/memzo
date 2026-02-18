@@ -1,9 +1,46 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Layers, User, Mail, Lock, UserPlus } from "lucide-react";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Registration failed");
+        return;
+      }
+
+      router.push("/");
+      router.refresh();
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-7">
       <div className="w-full max-w-sm">
@@ -22,7 +59,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form */}
-        <form className="flex flex-col gap-3.5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
           <div className="flex flex-col gap-1.5">
             <label className="font-body text-[13px] font-bold text-foreground">Full Name</label>
             <div className="flex h-[50px] items-center gap-2.5 rounded-[14px] border-2 border-border bg-card px-4">
@@ -30,6 +67,9 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
                 className="flex-1 bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
             </div>
@@ -42,6 +82,9 @@ export default function RegisterPage() {
               <input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="flex-1 bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
             </div>
@@ -54,17 +97,26 @@ export default function RegisterPage() {
               <input
                 type="password"
                 placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
                 className="flex-1 bg-transparent font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
               />
             </div>
           </div>
 
+          {error && (
+            <p className="font-body text-[13px] text-red-500">{error}</p>
+          )}
+
           <button
             type="submit"
-            className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] cursor-pointer"
+            disabled={loading}
+            className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] cursor-pointer disabled:opacity-60"
           >
             <UserPlus className="h-[18px] w-[18px]" />
-            Create Account
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
 
