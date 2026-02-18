@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { X, Image, Zap } from "lucide-react";
 
-export default function ScanPage() {
+function ScanContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const collectionId = searchParams.get("collectionId");
@@ -197,5 +197,13 @@ export default function ScanPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function ScanPage() {
+  return (
+    <Suspense>
+      <ScanContent />
+    </Suspense>
   );
 }
