@@ -1,5 +1,6 @@
 "use client";
 
+import { Volume2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface FlashcardProps {
@@ -7,9 +8,11 @@ interface FlashcardProps {
   back: string;
   isFlipped: boolean;
   onClick: () => void;
+  onSpeakFront?: () => void;
+  onSpeakBack?: () => void;
 }
 
-export function Flashcard({ front, back, isFlipped, onClick }: FlashcardProps) {
+export function Flashcard({ front, back, isFlipped, onClick, onSpeakFront, onSpeakBack }: FlashcardProps) {
   return (
     <div
       className="[perspective:1200px] mx-auto w-full cursor-pointer"
@@ -31,9 +34,20 @@ export function Flashcard({ front, back, isFlipped, onClick }: FlashcardProps) {
           <p className="font-heading w-full text-center text-[36px] font-bold leading-tight text-foreground">
             {front}
           </p>
-          <p className="font-body text-[13px] text-muted-foreground">
-            Tap to reveal
-          </p>
+          <div className="flex items-center gap-3">
+            <p className="font-body text-[13px] text-muted-foreground">
+              Tap to reveal
+            </p>
+            {onSpeakFront && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onSpeakFront(); }}
+                className="flex items-center justify-center rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                aria-label="Speak"
+              >
+                <Volume2 className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Back */}
@@ -44,6 +58,15 @@ export function Flashcard({ front, back, isFlipped, onClick }: FlashcardProps) {
           <p className="font-body w-full text-center text-xl font-semibold leading-relaxed text-foreground">
             {back}
           </p>
+          {onSpeakBack && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onSpeakBack(); }}
+              className="flex items-center justify-center rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+              aria-label="Speak"
+            >
+              <Volume2 className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>

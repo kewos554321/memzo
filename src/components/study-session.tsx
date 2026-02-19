@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Card } from "@/lib/types";
 import { useStudy } from "@/hooks/use-study";
+import { useSpeech } from "@/hooks/use-speech";
 import { Flashcard } from "@/components/flashcard";
 import { Confetti } from "@/components/confetti";
 import { X, Check, RotateCcw, Trophy } from "lucide-react";
@@ -28,6 +29,7 @@ export function StudySession({ cards, collectionId, onFinish }: StudySessionProp
   } = useStudy(cards, collectionId);
 
   const [answerAnim, setAnswerAnim] = useState<"correct" | "wrong" | null>(null);
+  const { speak } = useSpeech();
 
   const handleAnswer = (known: boolean) => {
     setAnswerAnim(known ? "correct" : "wrong");
@@ -160,6 +162,8 @@ export function StudySession({ cards, collectionId, onFinish }: StudySessionProp
               back={currentCard.back}
               isFlipped={isFlipped}
               onClick={flip}
+              onSpeakFront={() => speak(currentCard.front)}
+              onSpeakBack={() => speak(currentCard.back)}
             />
           </div>
         )}
