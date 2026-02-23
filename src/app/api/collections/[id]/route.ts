@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-function serializeDeck(deck: {
+function serializeCollection(collection: {
   id: string;
   title: string;
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  cards: { id: string; front: string; back: string; createdAt: Date; deckId: string }[];
+  cards: { id: string; front: string; back: string; createdAt: Date; collectionId: string }[];
 }) {
   return {
-    id: deck.id,
-    title: deck.title,
-    description: deck.description,
-    createdAt: deck.createdAt.getTime(),
-    updatedAt: deck.updatedAt.getTime(),
-    cards: deck.cards.map((c) => ({
+    id: collection.id,
+    title: collection.title,
+    description: collection.description,
+    createdAt: collection.createdAt.getTime(),
+    updatedAt: collection.updatedAt.getTime(),
+    cards: collection.cards.map((c) => ({
       id: c.id,
       front: c.front,
       back: c.back,
@@ -29,12 +29,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const deck = await prisma.deck.findUnique({
+  const collection = await prisma.collection.findUnique({
     where: { id },
     include: { cards: true },
   });
-  if (!deck) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  return NextResponse.json(serializeDeck(deck));
+  if (!collection) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  return NextResponse.json(serializeCollection(collection));
 }
 
 export async function PUT(
@@ -43,7 +43,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await req.json();
-  const deck = await prisma.deck.update({
+  const collection = await prisma.collection.update({
     where: { id },
     data: {
       ...(body.title !== undefined && { title: body.title }),
@@ -51,7 +51,7 @@ export async function PUT(
     },
     include: { cards: true },
   });
-  return NextResponse.json(serializeDeck(deck));
+  return NextResponse.json(serializeCollection(collection));
 }
 
 export async function DELETE(
@@ -59,6 +59,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  await prisma.deck.delete({ where: { id } });
+  await prisma.collection.delete({ where: { id } });
   return new NextResponse(null, { status: 204 });
 }

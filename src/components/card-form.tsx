@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 interface CardFormProps {
   initialFront?: string;
   initialBack?: string;
-  onSubmit: (front: string, back: string) => void;
+  onSubmit: (front: string, back: string) => void | Promise<void>;
   onCancel?: () => void;
   submitLabel?: string;
 }
@@ -20,14 +20,20 @@ export function CardForm({
 }: CardFormProps) {
   const [front, setFront] = useState(initialFront);
   const [back, setBack] = useState(initialBack);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!front.trim() || !back.trim()) return;
-    onSubmit(front.trim(), back.trim());
-    if (!initialFront) {
-      setFront("");
-      setBack("");
+    if (!front.trim() || !back.trim() || loading) return;
+    setLoading(true);
+    try {
+      await onSubmit(front.trim(), back.trim());
+      if (!initialFront) {
+        setFront("");
+        setBack("");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,10 +67,14 @@ export function CardForm({
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={!front.trim() || !back.trim()}
+          disabled={!front.trim() || !back.trim() || loading}
           className="clay-button inline-flex items-center gap-2 bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50 cursor-pointer"
         >
-          <Plus className="h-4 w-4" />
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4" />
+          )}
           {submitLabel}
         </button>
         {onCancel && (

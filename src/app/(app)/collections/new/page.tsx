@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import { useCollections } from "@/hooks/use-collections";
+import { useAsyncFn } from "@/hooks/use-async-fn";
 
 export default function NewCollectionPage() {
   const router = useRouter();
@@ -11,15 +12,15 @@ export default function NewCollectionPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
-  const handleCreate = async () => {
+  const [submit, creating] = useAsyncFn(async () => {
     if (!title.trim()) return;
     const collection = await createCollection(title.trim(), description.trim());
     router.push(`/collections/${collection.id}`);
-  };
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleCreate();
+    submit();
   };
 
   return (
@@ -73,12 +74,16 @@ export default function NewCollectionPage() {
 
           {/* Submit button */}
           <button
-            onClick={handleCreate}
-            disabled={!title.trim()}
+            onClick={submit}
+            disabled={!title.trim() || creating}
             className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
           >
-            <Plus className="h-[18px] w-[18px]" />
-            Create Collection
+            {creating ? (
+              <Loader2 className="h-[18px] w-[18px] animate-spin" />
+            ) : (
+              <Plus className="h-[18px] w-[18px]" />
+            )}
+            {creating ? "Creating..." : "Create Collection"}
           </button>
         </div>
       </div>

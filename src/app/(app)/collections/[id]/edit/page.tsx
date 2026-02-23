@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Collection } from "@/lib/types";
 import { useCollections } from "@/hooks/use-collections";
+import { useAsyncFn } from "@/hooks/use-async-fn";
 
 export default function EditCollectionPage() {
   const params = useParams<{ id: string }>();
@@ -27,14 +28,18 @@ export default function EditCollectionPage() {
 
   if (!collection) return null;
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [save, saving] = useAsyncFn(async () => {
     if (!title.trim()) return;
     await updateCollection(collection.id, {
       title: title.trim(),
       description: description.trim(),
     });
     router.push(`/collections/${collection.id}`);
+  });
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    save();
   };
 
   return (
@@ -77,10 +82,11 @@ export default function EditCollectionPage() {
             </div>
             <button
               type="submit"
-              disabled={!title.trim()}
-              className="flex h-[54px] items-center justify-center rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
+              disabled={!title.trim() || saving}
+              className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-primary font-body text-base font-bold text-white shadow-[0_4px_16px_#0D948840] disabled:opacity-50 cursor-pointer"
             >
-              Save Changes
+              {saving && <Loader2 className="h-[18px] w-[18px] animate-spin" />}
+              {saving ? "Saving..." : "Save Changes"}
             </button>
           </form>
         </div>

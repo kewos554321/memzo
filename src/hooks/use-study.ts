@@ -35,7 +35,7 @@ export function useStudy(cards: Card[], collectionId?: string) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            deckId: collectionId,
+            collectionId,
             results: newResults,
             completedAt: Date.now(),
           }),

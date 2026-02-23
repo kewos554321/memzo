@@ -15,7 +15,7 @@ model User {
   createdAt DateTime @default(now())
 }
 
-model Deck {
+model Collection {
   id            String         @id @default(cuid())
   title         String
   description   String
@@ -26,21 +26,21 @@ model Deck {
 }
 
 model Card {
-  id           String        @id @default(cuid())
-  front        String
-  back         String
-  createdAt    DateTime      @default(now())
-  deckId       String
-  deck         Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  studyResults StudyResult[]
+  id             String        @id @default(cuid())
+  front          String
+  back           String
+  createdAt      DateTime      @default(now())
+  collectionId   String
+  collection     Collection    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  studyResults   StudyResult[]
 }
 
 model StudySession {
-  id          String        @id @default(cuid())
-  deckId      String
-  deck        Deck          @relation(fields: [deckId], references: [id], onDelete: Cascade)
-  completedAt DateTime      @default(now())
-  results     StudyResult[]
+  id           String        @id @default(cuid())
+  collectionId String
+  collection   Collection    @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  completedAt  DateTime      @default(now())
+  results      StudyResult[]
 }
 
 model StudyResult {

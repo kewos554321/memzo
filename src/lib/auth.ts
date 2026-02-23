@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.JWT_SECRET || "memzo-dev-secret-please-change-in-production"
@@ -52,6 +53,23 @@ export function buildSessionCookie(token: string) {
     maxAge: COOKIE_MAX_AGE,
     path: "/",
   };
+}
+
+export async function getSessionFromRequest(
+  req: NextRequest
+): Promise<SessionUser | null> {
+  // Check Authorization: Bearer header first
+  const authHeader = req.headers.get("authorization");
+  if (authHeader?.startsWith("Bearer ")) {
+    const token = authHeader.slice(7);
+    return verifyToken(token);
+  }
+  // Fallback to cookie auth
+  const cookieToken = req.cookies.get(COOKIE_NAME)?.value;
+  if (cookieToken) {
+    return verifyToken(cookieToken);
+  }
+  return null;
 }
 
 export function buildClearSessionCookie() {

@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { User, Bell, LogOut, ChevronRight } from "lucide-react";
+import { User, Bell, LogOut, ChevronRight, Loader2 } from "lucide-react";
 import { useCollections } from "@/hooks/use-collections";
 import { useUser } from "@/hooks/use-user";
+import { useAsyncFn } from "@/hooks/use-async-fn";
 
 function getInitials(name: string) {
   return name
@@ -20,11 +21,11 @@ export default function ProfilePage() {
   const { user, loading } = useUser();
   const totalCards = collections.reduce((sum, c) => sum + c.cards.length, 0);
 
-  async function handleSignOut() {
+  const [handleSignOut, signingOut] = useAsyncFn(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();
-  }
+  });
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background pb-24 md:pb-10">
@@ -82,10 +83,17 @@ export default function ProfilePage() {
           </button>
           <button
             onClick={handleSignOut}
-            className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-red-200 bg-red-50 px-4 cursor-pointer"
+            disabled={signingOut}
+            className="flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl border-2 border-red-200 bg-red-50 px-4 cursor-pointer disabled:opacity-60"
           >
-            <LogOut className="h-[18px] w-[18px] text-red-600" />
-            <span className="font-body text-[15px] font-bold text-red-600">Sign Out</span>
+            {signingOut ? (
+              <Loader2 className="h-[18px] w-[18px] animate-spin text-red-600" />
+            ) : (
+              <LogOut className="h-[18px] w-[18px] text-red-600" />
+            )}
+            <span className="font-body text-[15px] font-bold text-red-600">
+              {signingOut ? "Signing out..." : "Sign Out"}
+            </span>
           </button>
         </div>
       </div>

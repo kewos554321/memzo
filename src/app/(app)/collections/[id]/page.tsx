@@ -27,6 +27,7 @@ export default function CollectionDetailPage() {
   const [collection, setCollection] = useState<Collection | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showImportModal, setShowImportModal] = useState(false);
   const [importText, setImportText] = useState("");
   const [importing, setImporting] = useState(false);
@@ -299,12 +300,23 @@ export default function CollectionDetailPage() {
                         </button>
                         <button
                           onClick={async () => {
-                            await deleteCard(collection.id, card.id);
-                            await refresh();
+                            if (deletingCardId) return;
+                            setDeletingCardId(card.id);
+                            try {
+                              await deleteCard(collection.id, card.id);
+                              await refresh();
+                            } finally {
+                              setDeletingCardId(null);
+                            }
                           }}
-                          className="text-destructive transition-colors hover:text-destructive/80 cursor-pointer"
+                          disabled={deletingCardId === card.id}
+                          className="text-destructive transition-colors hover:text-destructive/80 cursor-pointer disabled:opacity-50"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {deletingCardId === card.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
