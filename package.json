@@ -12,7 +12,7 @@
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.20",
     "@ai-sdk/openai": "^3.0.28",
-    "@prisma/client": "^5.19.0",
+    "@prisma/client": "^7.4.1",
     "@serwist/next": "^9.5.5",
     "@types/bcryptjs": "^2.4.6",
     "ai": "^6.0.85",
@@ -37,7 +37,7 @@
     "@types/uuid": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "prisma": "^5.19.0",
+    "prisma": "^7.4.1",
     "serwist": "^9.5.5",
     "shadcn": "^3.8.4",
     "tailwindcss": "^4",
