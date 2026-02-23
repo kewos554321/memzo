@@ -37,6 +37,7 @@
     "@types/uuid": "^11.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "lightningcss": "^1.31.1",
     "prisma": "^7.4.1",
     "serwist": "^9.5.5",
     "shadcn": "^3.8.4",
