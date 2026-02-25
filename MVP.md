@@ -1,8 +1,8 @@
 # Memzo MVP Plan
 
 ## 目標
-讓 extension 捕捉的單字（含語境句子）進入 inbox，
-用戶從 inbox 匯入到 collection，flashcard 遊戲保持獨立不動。
+讓 extension 捕捉的單字（含語境句子）進入 Vocabulary，
+用戶從 Vocabulary 匯入到 collection，flashcard 遊戲保持獨立不動。
 
 ---
 
@@ -25,7 +25,7 @@ model CapturedWord {
   phonetic   String?
   audioUrl   String?
   source     Json     // { type, url, videoId, title, timestamp, context, highlightWord }
-  status     String   @default("inbox")  // "inbox" | "imported" | "ignored"
+  status     String   @default("saved")  // "saved" | "imported" | "ignored"
   importedTo String?  // collectionId
   capturedAt DateTime @default(now())
 }
@@ -40,12 +40,13 @@ model CapturedWord {
 **POST `/api/words/capture`**（ext 呼叫）
 - Header: `Authorization: Bearer {token}`
 - Body: `{ word, definition, phonetic?, audioUrl?, source: SourceContext }`
-- 建立 `CapturedWord` record，status = "inbox"
+- 建立 `CapturedWord` record，status = "saved"
 - 回傳: `{ id, word, status }`
 
-**GET `/api/words/inbox`**（web 呼叫）
-- 回傳該 user 所有 status = "inbox" 的 CapturedWord
+**GET `/api/words`**（web 呼叫）
+- 回傳該 user 所有 CapturedWord（全部 status）
 - 按 capturedAt desc 排序
+- query param: `?status=saved` 可篩選
 
 **POST `/api/words/import`**（web 呼叫）
 - Body: `{ wordIds: string[], collectionId: string }`
@@ -136,18 +137,19 @@ case "CAPTURE_WORD": {
 
 ### 2-7. Tooltip.tsx
 
-按鈕文字改為「收進收件匣」或保留「＋ 加入單字卡」，UI 不大動。
+按鈕文字改為「＋ 加入詞彙庫」，UI 不大動。
 
 ---
 
 ## Phase 3 — Web UI
 
-### 3-1. 新增 `/inbox` 頁面（`memzo-web/src/app/(app)/inbox/page.tsx`）
+### 3-1. 新增 `/vocabulary` 頁面（`memzo-web/src/app/(app)/vocabulary/page.tsx`）
 
 UI 結構：
 ```
-標題：字詞收件匣 (N)
-篩選：全部 | YouTube | Netflix（先只做全部）
+標題：Vocabulary (N)
+篩選：全部 | 未加入 | 已加入 | 已忽略
+      來源：YouTube | Netflix（先只做全部）
 
 [卡片列表]
 每個卡片：
@@ -157,7 +159,7 @@ UI 結構：
      ▶ 影片標題 · 2:35 · YouTube   ← 可點擊，跳到影片該時間點
   [忽略]
 
-底部：[匯入選取的字 →]（點擊跳出 collection 選擇器）
+底部：[加入 Collection →]（點擊跳出 collection 選擇器）
 ```
 
 深連結格式：`https://youtube.com/watch?v={videoId}&t={Math.floor(timestamp)}`
@@ -172,18 +174,18 @@ const highlighted = context.replace(
 
 ### 3-2. Sidebar 加入口（`memzo-web/src/components/sidebar.tsx`）
 
-在導覽列加「收件匣」連結，顯示 badge 數量。
+在導覽列加「Vocabulary」連結，顯示未加入數量 badge。
 
-### 3-3. Collection 建立頁加「從收件匣匯入」選項
+### 3-3. Collection 建立頁加「從 Vocabulary 匯入」選項
 
 `memzo-web/src/app/(app)/collections/new/page.tsx`：
-- 建立 collection 後，若 inbox 有字，跳出「是否現在匯入？」
+- 建立 collection 後，若 vocabulary 有未加入的字，跳出「是否現在匯入？」
 
 ### 3-4. Collection 詳細頁加匯入入口
 
 `memzo-web/src/app/(app)/collections/[id]/page.tsx`：
-- 現有 Import section 加一個「從收件匣」tab
-- 點擊顯示 inbox 字詞，選擇後直接匯入
+- 現有 Import section 加一個「從 Vocabulary」tab
+- 點擊顯示未加入字詞，選擇後直接匯入
 
 ---
 
@@ -193,7 +195,7 @@ const highlighted = context.replace(
 |---|------|------|
 | 1 | 加 CapturedWord schema | `memzo-web/prisma/schema.prisma` |
 | 2 | POST /api/words/capture | `memzo-web/src/app/api/words/capture/route.ts` |
-| 3 | GET /api/words/inbox | `memzo-web/src/app/api/words/inbox/route.ts` |
+| 3 | GET /api/words | `memzo-web/src/app/api/words/route.ts` |
 | 4 | POST /api/words/import | `memzo-web/src/app/api/words/import/route.ts` |
 | 5 | PATCH /api/words/[id] | `memzo-web/src/app/api/words/[id]/route.ts` |
 | 6 | ext: SourceContext types | `memzo-ext/src/lib/types.ts` |
@@ -201,7 +203,7 @@ const highlighted = context.replace(
 | 8 | ext: captureWord() | `memzo-ext/src/entrypoints/background/api.ts` |
 | 9 | ext: CAPTURE_WORD case | `memzo-ext/src/entrypoints/background/index.ts` |
 | 10 | ext: WordSpan 改呼叫 | `memzo-ext/src/entrypoints/content/index.tsx` |
-| 11 | web: /inbox 頁面 | `memzo-web/src/app/(app)/inbox/page.tsx` |
+| 11 | web: /vocabulary 頁面 | `memzo-web/src/app/(app)/vocabulary/page.tsx` |
 | 12 | web: sidebar 加入口 | `memzo-web/src/components/sidebar.tsx` |
 | 13 | web: collection 匯入入口 | `memzo-web/src/app/(app)/collections/[id]/page.tsx` |
 
@@ -234,5 +236,5 @@ flashcard 遊戲只需要 front/back，保持乾淨獨立。
 - `memzo-ext/src/lib/sources/netflix.ts` — NetflixAdapter，其他不動
 - 翻卡時顯示 context hint（Card 加 optional sourceWordId FK）
 - 同一字多個 context 累積顯示
-- Inbox badge 即時更新
+- Vocabulary badge 即時更新
 - 匯出 CSV
