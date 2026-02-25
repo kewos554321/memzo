@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function POST(req: Request) {
-  const { collectionId, results, completedAt } = await req.json() as {
-    collectionId: string;
+  const { deckId, results, completedAt } = await req.json() as {
+    deckId: string;
     results: { cardId: string; known: boolean }[];
     completedAt: number;
   };
 
   const session = await prisma.studySession.create({
     data: {
-      collectionId,
+      deckId,
       completedAt: new Date(completedAt),
       results: {
         create: results.map((r) => ({ cardId: r.cardId, known: r.known })),

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
-import { CollectionsProvider } from "@/providers/collections-provider";
+import { DecksProvider } from "@/providers/decks-provider";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -44,9 +44,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body className="antialiased">
-        <CollectionsProvider>
+        <DecksProvider>
           {children}
-        </CollectionsProvider>
+        </DecksProvider>
       </body>
     </html>
   );

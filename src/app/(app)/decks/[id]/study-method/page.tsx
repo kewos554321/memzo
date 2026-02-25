@@ -3,7 +3,7 @@
 import { useEffect, useState, type ComponentType } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Layers, Type, Gamepad2, SquareCheck } from "lucide-react";
-import { Collection } from "@/lib/types";
+import { Deck } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type StudyMode = "flashcard" | "quiz" | "typing" | "match";
@@ -51,31 +51,31 @@ const modes: StudyModeOption[] = [
 export default function StudyMethodPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [selectedMode, setSelectedMode] = useState<StudyMode>("flashcard");
   const [shuffleCards, setShuffleCards] = useState(false);
   const [showAnswerFirst, setShowAnswerFirst] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/collections/${params.id}`)
+    fetch(`/api/decks/${params.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) {
           router.push("/");
           return;
         }
-        setCollection(d);
+        setDeck(d);
       });
   }, [params.id, router]);
 
   const handleStart = () => {
     // Only flashcard mode is implemented; others show coming-soon
     if (selectedMode === "flashcard") {
-      router.push(`/collections/${params.id}/study`);
+      router.push(`/decks/${params.id}/study`);
     }
   };
 
-  if (!collection) return null;
+  if (!deck) return null;
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
@@ -84,7 +84,7 @@ export default function StudyMethodPage() {
           {/* Top bar */}
           <div className="flex items-center justify-between">
             <button
-              onClick={() => router.push(`/collections/${collection.id}`)}
+              onClick={() => router.push(`/decks/${deck.id}`)}
               className="flex items-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm font-semibold font-body text-foreground cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -92,14 +92,14 @@ export default function StudyMethodPage() {
             </button>
             <div className="flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-bold font-body text-white">
               <Layers className="h-3 w-3" />
-              {collection.cards.length} cards
+              {deck.cards.length} cards
             </div>
           </div>
 
           {/* Header */}
           <div className="flex flex-col gap-1">
             <h1 className="font-heading text-2xl font-bold text-foreground">
-              {collection.title}
+              {deck.title}
             </h1>
             <p className="font-body text-[15px] text-muted-foreground">
               Choose how you want to study

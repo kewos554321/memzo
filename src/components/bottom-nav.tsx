@@ -16,8 +16,8 @@ export function BottomNav() {
 
   // Hide bottom nav in full-screen modes
   if (
-    /\/collections\/[^/]+\/study/.test(pathname) ||
-    /\/collections\/[^/]+\/study-method/.test(pathname)
+    /\/decks\/[^/]+\/study/.test(pathname) ||
+    /\/decks\/[^/]+\/study-method/.test(pathname)
   )
     return null;
 

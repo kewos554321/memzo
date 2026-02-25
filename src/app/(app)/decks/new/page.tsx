@@ -3,19 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus, Loader2 } from "lucide-react";
-import { useCollections } from "@/hooks/use-collections";
+import { useDecks } from "@/hooks/use-decks";
 import { useAsyncFn } from "@/hooks/use-async-fn";
 
-export default function NewCollectionPage() {
+export default function NewDeckPage() {
   const router = useRouter();
-  const { createCollection } = useCollections();
+  const { createDeck } = useDecks();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
   const [submit, creating] = useAsyncFn(async () => {
     if (!title.trim()) return;
-    const collection = await createCollection(title.trim(), description.trim());
-    router.push(`/collections/${collection.id}`);
+    const deck = await createDeck(title.trim(), description.trim());
+    router.push(`/decks/${deck.id}`);
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export default function NewCollectionPage() {
 
           {/* Title */}
           <h1 className="font-heading text-[26px] font-bold text-foreground">
-            Create New Collection
+            Create New Deck
           </h1>
 
           {/* Form card */}
@@ -48,7 +48,7 @@ export default function NewCollectionPage() {
           >
             <div className="flex flex-col gap-2">
               <label className="font-body text-sm font-bold text-foreground">
-                Collection Title
+                Deck Title
               </label>
               <input
                 placeholder="e.g. Japanese Vocabulary"
@@ -63,7 +63,7 @@ export default function NewCollectionPage() {
                 Description (optional)
               </label>
               <textarea
-                placeholder="What is this collection about?"
+                placeholder="What is this deck about?"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
@@ -83,7 +83,7 @@ export default function NewCollectionPage() {
             ) : (
               <Plus className="h-[18px] w-[18px]" />
             )}
-            {creating ? "Creating..." : "Create Collection"}
+            {creating ? "Creating..." : "Create Deck"}
           </button>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { User, Bell, LogOut, ChevronRight, Loader2 } from "lucide-react";
-import { useCollections } from "@/hooks/use-collections";
+import { useDecks } from "@/hooks/use-decks";
 import { useUser } from "@/hooks/use-user";
 import { useAsyncFn } from "@/hooks/use-async-fn";
 
@@ -17,9 +17,9 @@ function getInitials(name: string) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { collections } = useCollections();
+  const { decks } = useDecks();
   const { user, loading } = useUser();
-  const totalCards = collections.reduce((sum, c) => sum + c.cards.length, 0);
+  const totalCards = decks.reduce((sum, c) => sum + c.cards.length, 0);
 
   const [handleSignOut, signingOut] = useAsyncFn(async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -52,8 +52,8 @@ export default function ProfilePage() {
         {/* Stats */}
         <div className="flex gap-2.5">
           <div className="flex flex-1 flex-col items-center gap-1 rounded-[18px] border-2 border-border bg-card py-4">
-            <span className="font-heading text-[26px] font-bold text-primary">{collections.length}</span>
-            <span className="font-body text-xs text-muted-foreground">Collections</span>
+            <span className="font-heading text-[26px] font-bold text-primary">{decks.length}</span>
+            <span className="font-body text-xs text-muted-foreground">Decks</span>
           </div>
           <div className="flex flex-1 flex-col items-center gap-1 rounded-[18px] border-2 border-border bg-card py-4">
             <span className="font-heading text-[26px] font-bold text-primary">{totalCards}</span>

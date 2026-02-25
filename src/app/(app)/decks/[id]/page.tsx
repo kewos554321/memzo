@@ -16,15 +16,15 @@ import {
   Check,
   Loader2,
 } from "lucide-react";
-import { Collection } from "@/lib/types";
-import { useCollections } from "@/hooks/use-collections";
+import { Deck } from "@/lib/types";
+import { useDecks } from "@/hooks/use-decks";
 import { CardForm } from "@/components/card-form";
 
-export default function CollectionDetailPage() {
+export default function DeckDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { addCard, updateCard, deleteCard, addCards } = useCollections();
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const { addCard, updateCard, deleteCard, addCards } = useDecks();
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
@@ -36,24 +36,24 @@ export default function CollectionDetailPage() {
   const [jsonImporting, setJsonImporting] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/collections/${params.id}`)
+    fetch(`/api/decks/${params.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) {
           router.push("/");
           return;
         }
-        setCollection(d);
+        setDeck(d);
       });
   }, [params.id, router]);
 
   const refresh = async () => {
-    const d = await fetch(`/api/collections/${params.id}`).then((r) => r.json());
-    setCollection(d);
+    const d = await fetch(`/api/decks/${params.id}`).then((r) => r.json());
+    setDeck(d);
   };
 
   const handleImport = async () => {
-    if (!collection || !importText.trim()) return;
+    if (!deck || !importText.trim()) return;
     setImporting(true);
     try {
       const res = await fetch("/api/ai/generate", {
@@ -66,7 +66,7 @@ export default function CollectionDetailPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        await addCards(collection.id, data.cards);
+        await addCards(deck.id, data.cards);
         await refresh();
         setShowImportModal(false);
         setImportText("");
@@ -77,7 +77,7 @@ export default function CollectionDetailPage() {
   };
 
   const handleJsonImport = async () => {
-    if (!collection || !jsonText.trim()) return;
+    if (!deck || !jsonText.trim()) return;
     setJsonImporting(true);
     try {
       const data = JSON.parse(jsonText);
@@ -118,7 +118,7 @@ export default function CollectionDetailPage() {
         throw new Error("No valid cards found (missing front/back or word/definition)");
       }
 
-      await addCards(collection.id, validCards);
+      await addCards(deck.id, validCards);
       await refresh();
       setShowJsonImportModal(false);
       setJsonText("");
@@ -130,7 +130,7 @@ export default function CollectionDetailPage() {
     }
   };
 
-  if (!collection) return null;
+  if (!deck) return null;
 
   const accentColor = "#2DD4BF";
 
@@ -147,7 +147,7 @@ export default function CollectionDetailPage() {
             Back
           </button>
 
-          {/* Collection header card */}
+          {/* Deck header card */}
           <div
             className="overflow-hidden rounded-[20px] border-2 border-border bg-card shadow-[0_4px_16px_#0D948818]"
           >
@@ -157,16 +157,16 @@ export default function CollectionDetailPage() {
             />
             <div className="flex flex-col gap-2.5 px-[18px] py-4">
               <h1 className="font-heading text-[22px] font-bold text-foreground">
-                {collection.title}
+                {deck.title}
               </h1>
-              {collection.description && (
+              {deck.description && (
                 <p className="font-body text-sm text-muted-foreground">
-                  {collection.description}
+                  {deck.description}
                 </p>
               )}
               <div className="flex items-center gap-1 w-fit rounded-full bg-muted px-3 py-[5px] font-body text-[13px] font-semibold text-primary">
                 <Layers className="h-3.5 w-3.5" />
-                {collection.cards.length} cards
+                {deck.cards.length} cards
               </div>
             </div>
           </div>
@@ -174,14 +174,14 @@ export default function CollectionDetailPage() {
           {/* Action row */}
           <div className="flex gap-2.5">
             <Link
-              href={`/collections/${collection.id}/study-method`}
+              href={`/decks/${deck.id}/study-method`}
               className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-[#EA580C] px-5 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
             >
               <Play className="h-4 w-4" />
               Study Now
             </Link>
             <Link
-              href={`/collections/${collection.id}/ai`}
+              href={`/decks/${deck.id}/ai`}
               className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3 font-body text-[15px] font-bold text-white cursor-pointer"
             >
               <Sparkles className="h-4 w-4" />
@@ -203,7 +203,7 @@ export default function CollectionDetailPage() {
                 Import from JSON
               </button>
               <p className="font-body text-xs text-muted-foreground">
-                Upload a JSON file to add cards to this collection
+                Upload a JSON file to add cards to this deck
               </p>
             </div>
           </div>
@@ -230,7 +230,7 @@ export default function CollectionDetailPage() {
             <div className="clay-card animate-slide-up p-5">
               <CardForm
                 onSubmit={async (front, back) => {
-                  await addCard(collection.id, front, back);
+                  await addCard(deck.id, front, back);
                   await refresh();
                   setShowAddForm(false);
                 }}
@@ -240,7 +240,7 @@ export default function CollectionDetailPage() {
           )}
 
           {/* Cards list */}
-          {collection.cards.length === 0 ? (
+          {deck.cards.length === 0 ? (
             <div className="py-12 text-center">
               <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
                 <Layers className="h-8 w-8 text-muted-foreground" />
@@ -252,7 +252,7 @@ export default function CollectionDetailPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-2.5">
-              {collection.cards.map((card, index) => (
+              {deck.cards.map((card, index) => (
                 <div
                   key={card.id}
                   className="animate-slide-up overflow-hidden rounded-[16px] border-2 border-border bg-card"
@@ -268,7 +268,7 @@ export default function CollectionDetailPage() {
                         initialBack={card.back}
                         submitLabel="Save"
                         onSubmit={async (front, back) => {
-                          await updateCard(collection.id, card.id, front, back);
+                          await updateCard(deck.id, card.id, front, back);
                           await refresh();
                           setEditingCardId(null);
                         }}
@@ -303,7 +303,7 @@ export default function CollectionDetailPage() {
                             if (deletingCardId) return;
                             setDeletingCardId(card.id);
                             try {
-                              await deleteCard(collection.id, card.id);
+                              await deleteCard(deck.id, card.id);
                               await refresh();
                             } finally {
                               setDeletingCardId(null);

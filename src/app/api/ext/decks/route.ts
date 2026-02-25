@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
-function serializeCollection(collection: {
+function serializeDeck(deck: {
   id: string;
   title: string;
   description: string;
@@ -11,12 +11,12 @@ function serializeCollection(collection: {
   cards: { id: string; front: string; back: string; createdAt: Date }[];
 }) {
   return {
-    id: collection.id,
-    title: collection.title,
-    description: collection.description,
-    createdAt: collection.createdAt.getTime(),
-    updatedAt: collection.updatedAt.getTime(),
-    cards: collection.cards.map((c) => ({
+    id: deck.id,
+    title: deck.title,
+    description: deck.description,
+    createdAt: deck.createdAt.getTime(),
+    updatedAt: deck.updatedAt.getTime(),
+    cards: deck.cards.map((c) => ({
       id: c.id,
       front: c.front,
       back: c.back,
@@ -31,11 +31,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const collections = await prisma.collection.findMany({
+  const decks = await prisma.deck.findMany({
     include: { cards: true },
     orderBy: { createdAt: "desc" },
   });
-  return NextResponse.json(collections.map(serializeCollection));
+  return NextResponse.json(decks.map(serializeDeck));
 }
 
 export async function POST(req: NextRequest) {
@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
   }
 
   const { title, description } = await req.json();
-  const collection = await prisma.collection.create({
+  const deck = await prisma.deck.create({
     data: { title, description: description || "" },
     include: { cards: true },
   });
-  return NextResponse.json(serializeCollection(collection), { status: 201 });
+  return NextResponse.json(serializeDeck(deck), { status: 201 });
 }
 
 export async function OPTIONS() {

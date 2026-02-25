@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Search, BookOpen, Layers } from "lucide-react";
-import { useCollections } from "@/hooks/use-collections";
-import { CollectionCard } from "@/components/collection-card";
+import { useDecks } from "@/hooks/use-decks";
+import { DeckCard } from "@/components/deck-card";
 
 export default function HomePage() {
-  const { collections, loading, deleteCollection } = useCollections();
+  const { decks, loading, deleteDeck } = useDecks();
   const [search, setSearch] = useState("");
 
-  const filtered = collections.filter(
+  const filtered = decks.filter(
     (d) =>
       d.title.toLowerCase().includes(search.toLowerCase()) ||
       d.description.toLowerCase().includes(search.toLowerCase())
@@ -27,12 +27,12 @@ export default function HomePage() {
                 Memzo
               </h1>
               <p className="font-body text-sm font-normal text-muted-foreground">
-                {collections.length} {collections.length === 1 ? "collection" : "collections"}
+                {decks.length} {decks.length === 1 ? "deck" : "decks"}
               </p>
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-primary px-[14px] py-2 font-body text-[13px] font-semibold text-primary-foreground">
               <Layers className="h-4 w-4" />
-              {collections.reduce((sum, d) => sum + d.cards.length, 0)} cards
+              {decks.reduce((sum, d) => sum + d.cards.length, 0)} cards
             </div>
           </div>
 
@@ -41,7 +41,7 @@ export default function HomePage() {
             <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search collections..."
+              placeholder="Search decks..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 bg-transparent font-body text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -59,23 +59,23 @@ export default function HomePage() {
                 Try a different search term
               </p>
             </div>
-          ) : !loading && collections.length === 0 ? (
+          ) : !loading && decks.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-primary/10">
                 <BookOpen className="h-10 w-10 text-primary" />
               </div>
-              <h2 className="font-heading text-xl font-bold">No collections yet</h2>
+              <h2 className="font-heading text-xl font-bold">No decks yet</h2>
               <p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">
-                Create your first flashcard collection and start learning
+                Create your first flashcard deck and start learning
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-[14px]">
-              {filtered.map((collection, index) => (
-                <CollectionCard
-                  key={collection.id}
-                  collection={collection}
-                  onDelete={deleteCollection}
+              {filtered.map((deck, index) => (
+                <DeckCard
+                  key={deck.id}
+                  deck={deck}
+                  onDelete={deleteDeck}
                   index={index}
                 />
               ))}
@@ -90,11 +90,11 @@ export default function HomePage() {
         style={{bottom: 'calc(80px + 16px + max(env(safe-area-inset-bottom), 1rem))'}}
       >
         <Link
-          href="/collections/new"
+          href="/decks/new"
           className="flex items-center gap-1.5 rounded-full bg-primary px-5 py-[14px] font-body text-[15px] font-bold text-primary-foreground shadow-[0_6px_20px_#0D948840] cursor-pointer"
         >
           <Plus className="h-5 w-5" />
-          New Collection
+          New Deck
         </Link>
       </div>
     </div>

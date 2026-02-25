@@ -3,38 +3,38 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2 } from "lucide-react";
-import { Collection } from "@/lib/types";
-import { useCollections } from "@/hooks/use-collections";
+import { Deck } from "@/lib/types";
+import { useDecks } from "@/hooks/use-decks";
 import { useAsyncFn } from "@/hooks/use-async-fn";
 
-export default function EditCollectionPage() {
+export default function EditDeckPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const { updateCollection } = useCollections();
-  const [collection, setCollection] = useState<Collection | null>(null);
+  const { updateDeck } = useDecks();
+  const [deck, setDeck] = useState<Deck | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    fetch(`/api/collections/${params.id}`)
+    fetch(`/api/decks/${params.id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
         if (!d) { router.push("/"); return; }
-        setCollection(d);
+        setDeck(d);
         setTitle(d.title);
         setDescription(d.description);
       });
   }, [params.id, router]);
 
-  if (!collection) return null;
+  if (!deck) return null;
 
   const [save, saving] = useAsyncFn(async () => {
     if (!title.trim()) return;
-    await updateCollection(collection.id, {
+    await updateDeck(deck.id, {
       title: title.trim(),
       description: description.trim(),
     });
-    router.push(`/collections/${collection.id}`);
+    router.push(`/decks/${deck.id}`);
   });
 
   const handleSave = (e: React.FormEvent) => {
@@ -47,19 +47,19 @@ export default function EditCollectionPage() {
       <div className="flex-1 overflow-auto pb-24">
         <div className="flex flex-col gap-5 px-5 pb-6 pt-6">
           <button
-            onClick={() => router.push(`/collections/${collection.id}`)}
+            onClick={() => router.push(`/decks/${deck.id}`)}
             className="flex w-fit items-center gap-1.5 rounded-xl bg-muted px-3 py-2 text-sm font-semibold font-body text-foreground cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
           </button>
 
-          <h1 className="font-heading text-[26px] font-bold text-foreground">Edit Collection</h1>
+          <h1 className="font-heading text-[26px] font-bold text-foreground">Edit Deck</h1>
 
           <form onSubmit={handleSave} className="flex flex-col gap-5">
             <div className="flex flex-col gap-2">
               <label htmlFor="title" className="font-body text-sm font-bold text-foreground">
-                Collection Title
+                Deck Title
               </label>
               <input
                 id="title"

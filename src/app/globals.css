@@ -204,13 +204,13 @@
     0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
-/* Pastel accent strips for collection cards */
-.collection-accent-1 { background: linear-gradient(135deg, #FDBCB4, #FFD4CC); }
-.collection-accent-2 { background: linear-gradient(135deg, #ADD8E6, #C5E8F0); }
-.collection-accent-3 { background: linear-gradient(135deg, #98FF98, #B8FFBA); }
-.collection-accent-4 { background: linear-gradient(135deg, #E6E6FA, #F0E6FF); }
-.collection-accent-5 { background: linear-gradient(135deg, #FFE4B5, #FFF0D4); }
-.collection-accent-6 { background: linear-gradient(135deg, #FFB6C1, #FFD0D6); }
+/* Pastel accent strips for deck cards */
+.deck-accent-1 { background: linear-gradient(135deg, #FDBCB4, #FFD4CC); }
+.deck-accent-2 { background: linear-gradient(135deg, #ADD8E6, #C5E8F0); }
+.deck-accent-3 { background: linear-gradient(135deg, #98FF98, #B8FFBA); }
+.deck-accent-4 { background: linear-gradient(135deg, #E6E6FA, #F0E6FF); }
+.deck-accent-5 { background: linear-gradient(135deg, #FFE4B5, #FFF0D4); }
+.deck-accent-6 { background: linear-gradient(135deg, #FFB6C1, #FFD0D6); }
 
 /* Animation utilities */
 @keyframes bounceIn {

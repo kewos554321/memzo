@@ -11,17 +11,17 @@ export async function POST(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id: collectionId } = await params;
+  const { id: deckId } = await params;
   const { cards } = (await req.json()) as {
     cards: { front: string; back: string }[];
   };
 
-  const collection = await prisma.collection.findUnique({
-    where: { id: collectionId },
+  const deck = await prisma.deck.findUnique({
+    where: { id: deckId },
   });
-  if (!collection) {
+  if (!deck) {
     return NextResponse.json(
-      { error: "Collection not found" },
+      { error: "Deck not found" },
       { status: 404 }
     );
   }
@@ -29,14 +29,14 @@ export async function POST(
   const created = await prisma.$transaction(
     cards.map((c) =>
       prisma.card.create({
-        data: { front: c.front, back: c.back, collectionId },
+        data: { front: c.front, back: c.back, deckId },
       })
     )
   );
 
-  // Touch collection updatedAt
-  await prisma.collection.update({
-    where: { id: collectionId },
+  // Touch deck updatedAt
+  await prisma.deck.update({
+    where: { id: deckId },
     data: {},
   });
 

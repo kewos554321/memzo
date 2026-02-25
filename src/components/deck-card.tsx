@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { MoreHorizontal, Pencil, Trash2, Layers } from "lucide-react";
-import { Collection } from "@/lib/types";
+import { Deck } from "@/lib/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-interface CollectionCardProps {
-  collection: Collection;
+interface DeckCardProps {
+  deck: Deck;
   onDelete: (id: string) => void;
   index: number;
 }
@@ -31,16 +31,16 @@ function getRelativeTime(date: string | number | Date): string {
   return `${Math.floor(diffDays / 30)} months ago`;
 }
 
-export function CollectionCard({ collection, onDelete, index }: CollectionCardProps) {
+export function DeckCard({ deck, onDelete, index }: DeckCardProps) {
   const accentColor = ACCENT_COLOR;
-  const updatedAt = collection.updatedAt ? getRelativeTime(collection.updatedAt) : null;
+  const updatedAt = deck.updatedAt ? getRelativeTime(deck.updatedAt) : null;
 
   return (
     <div
       className="group relative animate-slide-up overflow-hidden rounded-[20px] border-2 border-border bg-card shadow-[0_4px_16px_#0D948818]"
       style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
     >
-      <Link href={`/collections/${collection.id}`} className="absolute inset-0 z-0" />
+      <Link href={`/decks/${deck.id}`} className="absolute inset-0 z-0" />
 
       {/* Accent strip */}
       <div
@@ -53,7 +53,7 @@ export function CollectionCard({ collection, onDelete, index }: CollectionCardPr
         {/* Top row: title + menu */}
         <div className="flex items-center justify-between">
           <h3 className="font-heading truncate text-lg font-semibold text-foreground">
-            {collection.title}
+            {deck.title}
           </h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -67,14 +67,14 @@ export function CollectionCard({ collection, onDelete, index }: CollectionCardPr
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="rounded-xl">
               <DropdownMenuItem asChild className="cursor-pointer">
-                <Link href={`/collections/${collection.id}/edit`}>
+                <Link href={`/decks/${deck.id}/edit`}>
                   <Pencil className="mr-2 h-4 w-4" />
                   Edit
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive cursor-pointer"
-                onClick={() => onDelete(collection.id)}
+                onClick={() => onDelete(deck.id)}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
@@ -84,9 +84,9 @@ export function CollectionCard({ collection, onDelete, index }: CollectionCardPr
         </div>
 
         {/* Description */}
-        {collection.description && (
+        {deck.description && (
           <p className="line-clamp-2 font-body text-[13px] text-muted-foreground">
-            {collection.description}
+            {deck.description}
           </p>
         )}
 
@@ -94,7 +94,7 @@ export function CollectionCard({ collection, onDelete, index }: CollectionCardPr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 rounded-full bg-muted px-[10px] py-1 font-body text-xs font-semibold text-primary">
             <Layers className="h-3 w-3" />
-            {collection.cards.length} cards
+            {deck.cards.length} cards
           </div>
           {updatedAt && (
             <span className="font-body text-xs text-muted-foreground">
