@@ -7,7 +7,10 @@
     "build": "next build --webpack",
     "postinstall": "prisma generate",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push && prisma generate",
+    "db:generate": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/deepseek": "^2.0.20",

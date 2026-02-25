@@ -15,6 +15,7 @@ import {
   X,
   Check,
   Loader2,
+  BookMarked,
 } from "lucide-react";
 import { Deck } from "@/lib/types";
 import { useDecks } from "@/hooks/use-decks";
@@ -34,6 +35,10 @@ export default function DeckDetailPage() {
   const [showJsonImportModal, setShowJsonImportModal] = useState(false);
   const [jsonText, setJsonText] = useState("");
   const [jsonImporting, setJsonImporting] = useState(false);
+  const [showVocabModal, setShowVocabModal] = useState(false);
+  const [vocabWords, setVocabWords] = useState<{ id: string; word: string; definition: string }[]>([]);
+  const [vocabSelected, setVocabSelected] = useState<Set<string>>(new Set());
+  const [vocabImporting, setVocabImporting] = useState(false);
 
   useEffect(() => {
     fetch(`/api/decks/${params.id}`)
@@ -130,6 +135,31 @@ export default function DeckDetailPage() {
     }
   };
 
+  async function openVocabModal() {
+    const res = await fetch("/api/words?status=saved");
+    if (res.ok) setVocabWords(await res.json());
+    setVocabSelected(new Set());
+    setShowVocabModal(true);
+  }
+
+  async function handleVocabImport() {
+    if (!vocabSelected.size || !deck) return;
+    setVocabImporting(true);
+    try {
+      const res = await fetch("/api/words/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wordIds: [...vocabSelected], collectionId: deck.id }),
+      });
+      if (res.ok) {
+        await refresh();
+        setShowVocabModal(false);
+      }
+    } finally {
+      setVocabImporting(false);
+    }
+  }
+
   if (!deck) return null;
 
   const accentColor = "#2DD4BF";
@@ -202,9 +232,13 @@ export default function DeckDetailPage() {
                 <Upload className="h-5 w-5" />
                 Import from JSON
               </button>
-              <p className="font-body text-xs text-muted-foreground">
-                Upload a JSON file to add cards to this deck
-              </p>
+              <button
+                onClick={openVocabModal}
+                className="flex h-[54px] w-full items-center justify-center gap-3 rounded-2xl border-2 border-border bg-card px-4 font-body text-[15px] font-bold text-foreground cursor-pointer hover:border-primary hover:text-primary transition-colors"
+              >
+                <BookMarked className="h-5 w-5" />
+                從 Vocabulary 匯入
+              </button>
             </div>
           </div>
 
@@ -406,6 +440,68 @@ export default function DeckDetailPage() {
               )}
               {jsonImporting ? "Importing..." : "Import Cards"}
             </button>
+          </div>
+        </div>
+      )}
+      {/* Vocabulary Import Modal */}
+      {showVocabModal && (
+        <div className="fixed inset-0 z-50 flex items-end bg-black/40 backdrop-blur-sm">
+          <div className="w-full rounded-t-[24px] bg-background p-5 pb-32 shadow-xl max-h-[80vh] overflow-y-auto">
+            <div className="mb-4 flex items-center justify-between">
+              <h3 className="font-heading text-lg font-semibold">從 Vocabulary 匯入</h3>
+              <button
+                onClick={() => setShowVocabModal(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {vocabWords.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-4">Vocabulary 中沒有未加入的單字。</p>
+            ) : (
+              <div className="flex flex-col gap-2 mb-4">
+                {vocabWords.map((w) => {
+                  const isSelected = vocabSelected.has(w.id);
+                  return (
+                    <button
+                      key={w.id}
+                      onClick={() => {
+                        setVocabSelected((prev) => {
+                          const s = new Set(prev);
+                          s.has(w.id) ? s.delete(w.id) : s.add(w.id);
+                          return s;
+                        });
+                      }}
+                      className={`flex items-start gap-3 rounded-2xl border-2 px-4 py-3 text-left transition-colors cursor-pointer ${
+                        isSelected ? "border-primary bg-primary/5" : "border-border"
+                      }`}
+                    >
+                      <div className={`mt-0.5 h-4 w-4 shrink-0 rounded border-2 flex items-center justify-center ${isSelected ? "border-primary bg-primary" : "border-muted-foreground"}`}>
+                        {isSelected && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                      <div>
+                        <p className="font-body font-bold text-foreground">{w.word}</p>
+                        <p className="font-body text-sm text-muted-foreground">{w.definition}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {vocabWords.length > 0 && (
+              <button
+                onClick={handleVocabImport}
+                disabled={!vocabSelected.size || vocabImporting}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-body text-base font-bold text-white disabled:opacity-50 cursor-pointer"
+              >
+                {vocabImporting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Check className="h-5 w-5" />
+                )}
+                {vocabImporting ? "匯入中…" : `匯入 ${vocabSelected.size} 個單字`}
+              </button>
+            )}
           </div>
         </div>
       )}

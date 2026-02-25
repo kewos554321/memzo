@@ -52,3 +52,16 @@ model StudyResult {
   studySessionId String
   studySession   StudySession @relation(fields: [studySessionId], references: [id], onDelete: Cascade)
 }
+
+model CapturedWord {
+  id         String   @id @default(cuid())
+  userId     String
+  word       String
+  definition String
+  phonetic   String?
+  audioUrl   String?
+  source     Json
+  status     String   @default("saved")
+  importedTo String?
+  capturedAt DateTime @default(now())
+}
