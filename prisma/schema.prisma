@@ -11,8 +11,8 @@ model User {
   name       String
   email      String   @unique
   password   String
-  nativeLang String   @default("zh-TW")
-  targetLang String   @default("en")
+  nativeLang String   @default("en")
+  targetLang String   @default("zh-TW")
   createdAt  DateTime @default(now())
 }
 
