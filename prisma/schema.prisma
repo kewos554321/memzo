@@ -7,11 +7,13 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  nativeLang String   @default("zh-TW")
+  targetLang String   @default("en")
+  createdAt  DateTime @default(now())
 }
 
 model Deck {
