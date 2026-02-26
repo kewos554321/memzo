@@ -13,6 +13,7 @@ model User {
   password   String
   nativeLang String   @default("en")
   targetLang String   @default("zh-TW")
+  userLevels Json     @default("{}")
   createdAt  DateTime @default(now())
 }
 
