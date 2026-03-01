@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, User, Layers, BookMarked, Settings } from "lucide-react";
+import { Home, BookOpen, Layers, BookMarked, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
+  { href: "/decks", icon: Layers, label: "Decks" },
   { href: "/study", icon: BookOpen, label: "Study" },
   { href: "/vocabulary", icon: BookMarked, label: "Vocabulary" },
-  { href: "/profile", icon: User, label: "Profile" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
