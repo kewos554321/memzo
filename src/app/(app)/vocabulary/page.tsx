@@ -11,6 +11,7 @@ import {
   ChevronUp,
   Check,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CapturedWord {
   id: string;
@@ -87,14 +88,9 @@ export default function VocabularyPage() {
   const [filter, setFilter] = useState<FilterStatus>("saved");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [decks, setDecks] = useState<{ id: string; title: string }[]>([]);
-  const [showImportModal, setShowImportModal] = useState(false);
-  const [importing, setImporting] = useState(false);
 
   useEffect(() => {
     loadWords();
-    loadDecks();
   }, []);
 
   async function loadWords() {
@@ -102,11 +98,6 @@ export default function VocabularyPage() {
     const res = await fetch("/api/words");
     if (res.ok) setWords(await res.json());
     setLoading(false);
-  }
-
-  async function loadDecks() {
-    const res = await fetch("/api/decks");
-    if (res.ok) setDecks(await res.json());
   }
 
   async function handleIgnore(id: string) {
@@ -118,45 +109,10 @@ export default function VocabularyPage() {
     setWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, status: "ignored" } : w))
     );
-    setSelected((prev) => {
-      const s = new Set(prev);
-      s.delete(id);
-      return s;
-    });
-  }
-
-  async function handleImport(deckId: string) {
-    if (!selected.size) return;
-    setImporting(true);
-    const res = await fetch("/api/words/import", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ wordIds: [...selected], collectionId: deckId }),
-    });
-    if (res.ok) {
-      setWords((prev) =>
-        prev.map((w) =>
-          selected.has(w.id)
-            ? { ...w, status: "imported", importedTo: deckId }
-            : w
-        )
-      );
-      setSelected(new Set());
-      setShowImportModal(false);
-    }
-    setImporting(false);
   }
 
   function toggleExpanded(id: string) {
     setExpanded((prev) => {
-      const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
-      return s;
-    });
-  }
-
-  function toggleSelect(id: string) {
-    setSelected((prev) => {
       const s = new Set(prev);
       s.has(id) ? s.delete(id) : s.add(id);
       return s;
@@ -180,26 +136,26 @@ export default function VocabularyPage() {
     { value: "all", label: "全部" },
     { value: "saved", label: "未加入" },
     { value: "imported", label: "已加入" },
-    { value: "ignored", label: "已忽略" },
+    { value: "ignored", label: "已學習" },
   ];
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8">
+    <div className="mx-auto w-full max-w-[640px] px-4 py-8">
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <BookMarked className="h-6 w-6 text-primary" />
-          <div>
-            <h1 className="font-heading text-2xl font-bold text-foreground">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <BookMarked className="h-6 w-6 text-primary" />
+            <h1 className="font-heading text-3xl font-bold text-foreground">
               Vocabulary
             </h1>
-            <p className="text-sm text-muted-foreground">
-              {words.length} words captured
-            </p>
           </div>
+          <p className="text-sm text-muted-foreground">
+            {words.length} words captured
+          </p>
         </div>
         {savedCount > 0 && (
-          <span className="rounded-full bg-primary px-3 py-1 text-sm font-semibold text-white">
+          <span className="rounded-full bg-primary px-2.5 py-1 text-sm font-bold text-white">
             {savedCount} new
           </span>
         )}
@@ -225,7 +181,7 @@ export default function VocabularyPage() {
             onClick={() => setFilter(f.value)}
             className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
               filter === f.value
-                ? "bg-primary text-white"
+                ? "bg-primary font-bold text-white"
                 : "bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -243,18 +199,15 @@ export default function VocabularyPage() {
       ) : filtered.length === 0 ? (
         <p className="text-muted-foreground">沒有單字</p>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {filtered.map((w) => {
             const link = videoLink(w.source);
             const ts = formatTimestamp(w.source.timestamp);
             const isExpanded = expanded.has(w.id);
-            const isSelected = selected.has(w.id);
             return (
               <div
                 key={w.id}
-                className={`overflow-hidden rounded-xl border bg-card transition-colors ${
-                  isSelected ? "border-primary" : "border-border"
-                }`}
+                className="overflow-hidden rounded-xl border border-border bg-card transition-colors"
               >
                 {/* Card header — click to expand */}
                 <div
@@ -263,16 +216,17 @@ export default function VocabularyPage() {
                 >
                   {/* Status circle */}
                   <div
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 ${
+                    className={cn(
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2",
                       w.status === "imported"
-                        ? "border-primary bg-primary/10 text-primary"
+                        ? "border-primary bg-[#CCFBF1]"
                         : w.status === "ignored"
-                        ? "border-border bg-muted text-muted-foreground"
-                        : "border-amber-400 bg-amber-50"
-                    }`}
+                        ? "border-border bg-muted"
+                        : "border-amber-400 bg-[#FFFBEB]"
+                    )}
                   >
                     {w.status === "imported" && (
-                      <Check className="h-4 w-4 text-primary" />
+                      <Check className="h-3.5 w-3.5 text-primary" />
                     )}
                   </div>
 
@@ -294,21 +248,33 @@ export default function VocabularyPage() {
                   </div>
 
                   {/* Right: context count + chevron */}
-                  <div className="flex shrink-0 items-center gap-2 text-muted-foreground">
-                    {w.source.context && (
-                      <span className="text-xs">1 context</span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    {w.status === "imported" ? (
+                      <span className="rounded-full bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#16A34A]">
+                        已加入
+                      </span>
+                    ) : w.status === "ignored" ? (
+                      <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
+                        已學習
+                      </span>
+                    ) : (
+                      w.source.context && (
+                        <span className="text-xs text-muted-foreground">
+                          1 context
+                        </span>
+                      )
                     )}
                     {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
+                      <ChevronUp className="h-4 w-4 text-muted-foreground" />
                     ) : (
-                      <ChevronDown className="h-4 w-4" />
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     )}
                   </div>
                 </div>
 
                 {/* Expanded content */}
                 {isExpanded && (
-                  <div className="border-t border-border bg-muted/30 px-4 pb-4 pt-3">
+                  <div className="border-t border-border bg-muted px-4 pb-4 pt-3">
                     {/* Full definition + audio */}
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <p className="text-sm text-foreground">{w.definition}</p>
@@ -318,7 +284,7 @@ export default function VocabularyPage() {
                             e.stopPropagation();
                             playAudio(w.audioUrl!);
                           }}
-                          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/80"
+                          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
                         >
                           <Volume2 className="h-3.5 w-3.5" />
                           Play
@@ -328,7 +294,7 @@ export default function VocabularyPage() {
 
                     {/* Context sentence */}
                     {w.source.context && (
-                      <div className="mb-3 rounded-lg bg-card px-3 py-2.5 text-sm italic text-foreground/80">
+                      <div className="mb-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground">
                         &ldquo;
                         <HighlightedContext
                           context={w.source.context}
@@ -349,9 +315,9 @@ export default function VocabularyPage() {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <ExternalLink className="h-3 w-3" />
-                          {w.source.title || w.source.type}
-                          {ts && ` · ${ts}`}
-                          {w.source.type === "youtube" && " · YouTube"}
+                          {w.source.type === "youtube"
+                            ? `YouTube${ts ? ` · ${ts}` : ""}`
+                            : `${w.source.title || w.source.type}${ts ? ` · ${ts}` : ""}`}
                         </a>
                       </div>
                     )}
@@ -362,24 +328,11 @@ export default function VocabularyPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleSelect(w.id);
-                          }}
-                          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${
-                            isSelected
-                              ? "bg-primary text-white"
-                              : "border border-primary text-primary hover:bg-primary/10"
-                          }`}
-                        >
-                          {isSelected ? "✓ Selected" : "Add to Deck"}
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
                             handleIgnore(w.id);
                           }}
-                          className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
                         >
-                          忽略
+                          已學習
                         </button>
                       </div>
                     )}
@@ -388,53 +341,6 @@ export default function VocabularyPage() {
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Import bar */}
-      {selected.size > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 rounded-2xl bg-foreground px-5 py-3 shadow-2xl">
-          <span className="text-sm font-semibold text-background">
-            已選 {selected.size} 個
-          </span>
-          <button
-            onClick={() => setShowImportModal(true)}
-            className="rounded-xl bg-primary px-4 py-1.5 text-sm font-bold text-white"
-          >
-            加入 Deck →
-          </button>
-        </div>
-      )}
-
-      {/* Import modal */}
-      {showImportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-sm rounded-2xl border border-border bg-card p-6">
-            <h2 className="mb-4 font-heading text-lg font-bold">選擇 Deck</h2>
-            <div className="mb-4 flex flex-col gap-2">
-              {decks.map((d) => (
-                <button
-                  key={d.id}
-                  onClick={() => handleImport(d.id)}
-                  disabled={importing}
-                  className="rounded-xl border border-border px-4 py-2.5 text-left text-sm font-semibold transition-colors hover:border-primary hover:bg-muted disabled:opacity-50"
-                >
-                  {d.title}
-                </button>
-              ))}
-              {decks.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  沒有 deck，請先建立一個。
-                </p>
-              )}
-            </div>
-            <button
-              onClick={() => setShowImportModal(false)}
-              className="w-full rounded-xl border border-border px-4 py-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              取消
-            </button>
-          </div>
         </div>
       )}
     </div>
