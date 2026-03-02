@@ -1,0 +1,1063 @@
+openapi: 3.0.3
+info:
+  title: Memzo API
+  description: REST API for Memzo — AI-powered language learning flashcard app
+  version: 1.0.0
+
+servers:
+  - url: /api
+    description: Next.js API routes (relative)
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session
+      description: JWT session cookie (set on login/register)
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Bearer token (used by browser extension)
+
+  schemas:
+    Card:
+      type: object
+      properties:
+        id:
+          type: string
+          description: CUID
+        front:
+          type: string
+        back:
+          type: string
+        createdAt:
+          type: integer
+          description: Unix timestamp in milliseconds
+      required: [id, front, back, createdAt]
+
+    Deck:
+      type: object
+      properties:
+        id:
+          type: string
+          description: CUID
+        title:
+          type: string
+        description:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Card'
+        createdAt:
+          type: integer
+          description: Unix timestamp in milliseconds
+        updatedAt:
+          type: integer
+          description: Unix timestamp in milliseconds
+      required: [id, title, description, cards, createdAt, updatedAt]
+
+    CapturedWord:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        word:
+          type: string
+        definition:
+          type: string
+        phonetic:
+          type: string
+          nullable: true
+        audioUrl:
+          type: string
+          nullable: true
+        source:
+          type: object
+          description: JSON blob describing word capture context
+          properties:
+            type:
+              type: string
+              enum: [youtube, netflix]
+            url:
+              type: string
+              nullable: true
+            videoId:
+              type: string
+              nullable: true
+            title:
+              type: string
+              nullable: true
+            timestamp:
+              type: number
+              nullable: true
+            context:
+              type: string
+              nullable: true
+            highlightWord:
+              type: string
+              nullable: true
+          required: [type]
+        status:
+          type: string
+          enum: [saved, imported, ignored]
+        importedTo:
+          type: string
+          nullable: true
+          description: Deck ID if word was imported
+        capturedAt:
+          type: string
+          format: date-time
+      required: [id, userId, word, definition, source, status, capturedAt]
+
+    StudyResult:
+      type: object
+      properties:
+        cardId:
+          type: string
+        known:
+          type: boolean
+      required: [cardId, known]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+      required: [id, name, email]
+
+    UserSettings:
+      type: object
+      properties:
+        nativeLang:
+          type: string
+          example: en
+        targetLang:
+          type: string
+          example: zh-TW
+        userLevels:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [A1, A2, B1, B2, C1, C2]
+          example:
+            zh-TW: A2
+      required: [nativeLang, targetLang, userLevels]
+
+    Stats:
+      type: object
+      properties:
+        totalCards:
+          type: integer
+        weekMastered:
+          type: integer
+        learningCount:
+          type: integer
+        todayMinutes:
+          type: integer
+        streak:
+          type: integer
+        weeklyData:
+          type: array
+          items:
+            type: object
+            properties:
+              day:
+                type: string
+                example: Mon
+              cards:
+                type: integer
+              minutes:
+                type: integer
+            required: [day, cards, minutes]
+      required: [totalCards, weekMastered, learningCount, todayMinutes, streak, weeklyData]
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+paths:
+  # ─── AUTH ────────────────────────────────────────────────────────────
+  /auth/register:
+    post:
+      summary: Register a new user
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+              required: [name, email, password]
+      responses:
+        '201':
+          description: Registered successfully; sets session cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Validation error or email already in use
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      summary: Log in with email and password
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: Logged in; sets session cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      summary: Log out; clears session cookie
+      tags: [Auth]
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+
+  /auth/me:
+    get:
+      summary: Get current authenticated user
+      tags: [Auth]
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ─── DECKS ───────────────────────────────────────────────────────────
+  /decks:
+    get:
+      summary: List all decks
+      tags: [Decks]
+      responses:
+        '200':
+          description: Array of decks with embedded cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deck'
+
+    post:
+      summary: Create a new deck
+      tags: [Decks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+              required: [title, description]
+      responses:
+        '201':
+          description: Created deck
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+
+  /decks/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Deck CUID
+
+    get:
+      summary: Get a deck by ID
+      tags: [Decks]
+      responses:
+        '200':
+          description: Single deck with embedded cards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update deck title or description
+      tags: [Decks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Updated deck
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+
+    delete:
+      summary: Delete a deck (cascades to cards and study sessions)
+      tags: [Decks]
+      responses:
+        '204':
+          description: Deleted
+
+  /decks/{id}/cards:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Deck CUID
+
+    post:
+      summary: Add cards to a deck (bulk)
+      tags: [Decks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cards:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      front:
+                        type: string
+                      back:
+                        type: string
+                    required: [front, back]
+              required: [cards]
+      responses:
+        '201':
+          description: Created cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+
+  /decks/{id}/cards/{cardId}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: cardId
+        in: path
+        required: true
+        schema:
+          type: string
+
+    put:
+      summary: Update a card's front and back
+      tags: [Decks]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                front:
+                  type: string
+                back:
+                  type: string
+              required: [front, back]
+      responses:
+        '200':
+          description: Updated card
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Card'
+
+    delete:
+      summary: Delete a card
+      tags: [Decks]
+      responses:
+        '204':
+          description: Deleted
+
+  # ─── WORDS ───────────────────────────────────────────────────────────
+  /words:
+    get:
+      summary: List captured words for current user
+      tags: [Words]
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [saved, imported, ignored]
+          description: Filter by word status
+      responses:
+        '200':
+          description: Array of captured words
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CapturedWord'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /words/capture:
+    post:
+      summary: Capture a word from the browser extension
+      tags: [Words]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                definition:
+                  type: string
+                source:
+                  type: object
+                  description: Capture source metadata (see CapturedWord.source schema)
+                phonetic:
+                  type: string
+                audioUrl:
+                  type: string
+              required: [word, definition, source]
+      responses:
+        '201':
+          description: Word captured
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  word:
+                    type: string
+                  status:
+                    type: string
+        '200':
+          description: Word already exists for this user — returns existing record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CapturedWord'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /words/import:
+    post:
+      summary: Import selected captured words into a deck
+      tags: [Words]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wordIds:
+                  type: array
+                  items:
+                    type: string
+                  minItems: 1
+                  description: CapturedWord IDs to import
+                collectionId:
+                  type: string
+                  description: Destination deck ID
+              required: [wordIds, collectionId]
+      responses:
+        '200':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  imported:
+                    type: integer
+                    description: Number of words successfully imported
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Deck not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /words/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: CapturedWord CUID
+
+    patch:
+      summary: Update captured word status
+      tags: [Words]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [saved, imported, ignored]
+              required: [status]
+      responses:
+        '200':
+          description: Updated word
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  status:
+                    type: string
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ─── STUDY SESSIONS ──────────────────────────────────────────────────
+  /study-sessions:
+    post:
+      summary: Record a completed study session
+      tags: [Study]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deckId:
+                  type: string
+                results:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/StudyResult'
+                completedAt:
+                  type: integer
+                  description: Unix timestamp in milliseconds
+              required: [deckId, results, completedAt]
+      responses:
+        '201':
+          description: Session recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+
+  # ─── STATS ───────────────────────────────────────────────────────────
+  /stats:
+    get:
+      summary: Get user progress statistics
+      tags: [Stats]
+      responses:
+        '200':
+          description: User stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+
+  # ─── AI ──────────────────────────────────────────────────────────────
+  /ai/ocr:
+    post:
+      summary: Extract text from an image using Deepseek Vision
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+              required: [image]
+      responses:
+        '200':
+          description: Extracted text
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  text:
+                    type: string
+        '400':
+          description: No image provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: OCR failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ai/generate:
+    post:
+      summary: Generate flashcards from text or image
+      tags: [AI]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  description: Source text for card generation
+                image:
+                  type: string
+                  format: binary
+                  description: Image to extract text from (alternative to text)
+                helperPrompt:
+                  type: string
+                  description: Additional context for card generation
+      responses:
+        '200':
+          description: Generated cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        front:
+                          type: string
+                        back:
+                          type: string
+                      required: [front, back]
+        '400':
+          description: No text or image provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Could not extract text from image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Card generation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ─── EXTENSION AUTH ──────────────────────────────────────────────────
+  /ext/auth/token:
+    post:
+      summary: Exchange credentials for a Bearer token (extension login)
+      tags: [Extension]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        '200':
+          description: Bearer token and user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Missing fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ext/auth/me:
+    get:
+      summary: Get current extension user
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ext/settings:
+    get:
+      summary: Get extension user settings (language + CEFR levels)
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: Update extension user settings
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nativeLang:
+                  type: string
+                targetLang:
+                  type: string
+                userLevels:
+                  type: object
+                  additionalProperties:
+                    type: string
+      responses:
+        '200':
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSettings'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ext/decks:
+    get:
+      summary: List all decks (extension)
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Array of decks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deck'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a deck (extension)
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                  default: ''
+              required: [title]
+      responses:
+        '201':
+          description: Created deck
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deck'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ext/decks/{id}/cards:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Deck CUID
+
+    post:
+      summary: Add cards to a deck (extension)
+      tags: [Extension]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cards:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      front:
+                        type: string
+                      back:
+                        type: string
+                    required: [front, back]
+              required: [cards]
+      responses:
+        '201':
+          description: Created cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Card'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Deck not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Auth
+    description: User registration, login, and session management
+  - name: Decks
+    description: Deck and flashcard CRUD
+  - name: Words
+    description: Vocabulary capture and import pipeline
+  - name: Study
+    description: Study session tracking
+  - name: Stats
+    description: User progress statistics
+  - name: AI
+    description: AI-powered OCR and card generation
+  - name: Extension
+    description: Browser extension dedicated endpoints (Bearer token auth)
