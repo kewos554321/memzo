@@ -5,6 +5,8 @@ import {
   BookMarked,
   ExternalLink,
   Loader2,
+  MessageSquare,
+  PlayCircle,
   Search,
   Volume2,
   ChevronDown,
@@ -33,7 +35,7 @@ interface CapturedWord {
   capturedAt: string;
 }
 
-type FilterStatus = "all" | "saved" | "imported" | "ignored";
+type FilterStatus = "all" | "ignored";
 
 function HighlightedContext({
   context,
@@ -85,7 +87,7 @@ function formatTimestamp(seconds?: number) {
 export default function VocabularyPage() {
   const [words, setWords] = useState<CapturedWord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<FilterStatus>("saved");
+  const [filter, setFilter] = useState<FilterStatus>("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -100,14 +102,17 @@ export default function VocabularyPage() {
     setLoading(false);
   }
 
-  async function handleIgnore(id: string) {
+  async function handleToggleStatus(id: string) {
+    const word = words.find((w) => w.id === id);
+    if (!word) return;
+    const nextStatus = word.status === "ignored" ? "saved" : "ignored";
     await fetch(`/api/words/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "ignored" }),
+      body: JSON.stringify({ status: nextStatus }),
     });
     setWords((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, status: "ignored" } : w))
+      prev.map((w) => (w.id === id ? { ...w, status: nextStatus } : w))
     );
   }
 
@@ -123,6 +128,13 @@ export default function VocabularyPage() {
     new Audio(url).play().catch(() => {});
   }
 
+  function playSentence(text: string) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
+  }
+
   const filtered = words.filter((w) => {
     const matchesFilter = filter === "all" || w.status === filter;
     const matchesSearch =
@@ -134,8 +146,6 @@ export default function VocabularyPage() {
 
   const filters: { value: FilterStatus; label: string }[] = [
     { value: "all", label: "全部" },
-    { value: "saved", label: "未加入" },
-    { value: "imported", label: "已加入" },
     { value: "ignored", label: "已學習" },
   ];
 
@@ -214,10 +224,14 @@ export default function VocabularyPage() {
                   className="flex cursor-pointer items-center gap-3 p-4"
                   onClick={() => toggleExpanded(w.id)}
                 >
-                  {/* Status circle */}
-                  <div
+                  {/* Status circle — click to toggle 學習中 / 已學習 */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggleStatus(w.id);
+                    }}
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2",
+                      "flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-opacity hover:opacity-80",
                       w.status === "imported"
                         ? "border-primary bg-[#CCFBF1]"
                         : w.status === "ignored"
@@ -228,7 +242,7 @@ export default function VocabularyPage() {
                     {w.status === "imported" && (
                       <Check className="h-3.5 w-3.5 text-primary" />
                     )}
-                  </div>
+                  </button>
 
                   {/* Word + definition preview */}
                   <div className="min-w-0 flex-1">
@@ -249,11 +263,7 @@ export default function VocabularyPage() {
 
                   {/* Right: context count + chevron */}
                   <div className="flex shrink-0 items-center gap-2">
-                    {w.status === "imported" ? (
-                      <span className="rounded-full bg-[#DCFCE7] px-2.5 py-1 text-xs font-bold text-[#16A34A]">
-                        已加入
-                      </span>
-                    ) : w.status === "ignored" ? (
+                    {w.status === "ignored" ? (
                       <span className="rounded-full bg-muted px-2.5 py-1 text-xs font-semibold text-muted-foreground">
                         已學習
                       </span>
@@ -278,18 +288,32 @@ export default function VocabularyPage() {
                     {/* Full definition + audio */}
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <p className="text-sm text-foreground">{w.definition}</p>
-                      {w.audioUrl && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            playAudio(w.audioUrl!);
-                          }}
-                          className="flex shrink-0 items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-                        >
-                          <Volume2 className="h-3.5 w-3.5" />
-                          Play
-                        </button>
-                      )}
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        {w.audioUrl && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playAudio(w.audioUrl!);
+                            }}
+                            className="flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+                          >
+                            <Volume2 className="h-3.5 w-3.5" />
+                            Play
+                          </button>
+                        )}
+                        {w.source.context && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playSentence(w.source.context!);
+                            }}
+                            className="flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
+                          >
+                            <MessageSquare className="h-3.5 w-3.5" />
+                            Sentence
+                          </button>
+                        )}
+                      </div>
                     </div>
 
                     {/* Context sentence */}
@@ -314,7 +338,11 @@ export default function VocabularyPage() {
                           className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          <ExternalLink className="h-3 w-3" />
+                          {w.source.type === "youtube" ? (
+                            <PlayCircle className="h-3 w-3" />
+                          ) : (
+                            <ExternalLink className="h-3 w-3" />
+                          )}
                           {w.source.type === "youtube"
                             ? `YouTube${ts ? ` · ${ts}` : ""}`
                             : `${w.source.title || w.source.type}${ts ? ` · ${ts}` : ""}`}
@@ -322,20 +350,6 @@ export default function VocabularyPage() {
                       </div>
                     )}
 
-                    {/* Actions */}
-                    {w.status === "saved" && (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIgnore(w.id);
-                          }}
-                          className="rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                          已學習
-                        </button>
-                      </div>
-                    )}
                   </div>
                 )}
               </div>

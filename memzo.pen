@@ -857,7 +857,7 @@
                       "type": "frame",
                       "id": "od08l",
                       "name": "deckBadge",
-                      "fill": "$--muted",
+                      "fill": "$--primary",
                       "cornerRadius": 999,
                       "gap": 4,
                       "padding": [
@@ -1197,7 +1197,7 @@
                           "type": "text",
                           "id": "pGmpM",
                           "name": "fcBack1",
-                          "fill": "$--muted-foreground",
+                          "fill": "#FFFFFF",
                           "content": "Thank you",
                           "fontFamily": "Nunito",
                           "fontSize": 13,
@@ -2213,7 +2213,7 @@
                           "content": "Flashcards",
                           "fontFamily": "Fredoka",
                           "fontSize": 17,
-                          "fontWeight": "600"
+                          "fontWeight": "700"
                         },
                         {
                           "type": "text",
@@ -10046,52 +10046,8 @@
                     },
                     {
                       "type": "frame",
-                      "id": "1Ogl8",
-                      "name": "fp2",
-                      "fill": "$--primary",
-                      "cornerRadius": 8,
-                      "padding": [
-                        6,
-                        12
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "mjq1F",
-                          "fill": "#FFFFFF",
-                          "content": "未加入",
-                          "fontFamily": "Nunito",
-                          "fontSize": 14,
-                          "fontWeight": "700"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "VlSM6",
-                      "name": "fp3",
-                      "fill": "$--muted",
-                      "cornerRadius": 8,
-                      "padding": [
-                        6,
-                        12
-                      ],
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "YYcpx",
-                          "fill": "$--muted-foreground",
-                          "content": "已加入",
-                          "fontFamily": "Nunito",
-                          "fontSize": 14,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
                       "id": "qrMy8",
-                      "name": "fp4",
+                      "name": "fp2",
                       "fill": "$--muted",
                       "cornerRadius": 8,
                       "padding": [
@@ -10103,7 +10059,7 @@
                           "type": "text",
                           "id": "HdkjW",
                           "fill": "$--muted-foreground",
-                          "content": "已忽略",
+                          "content": "已學習",
                           "fontFamily": "Nunito",
                           "fontSize": 14,
                           "fontWeight": "600"
@@ -10279,6 +10235,81 @@
                             },
                             {
                               "type": "frame",
+                              "id": "pRw1X",
+                              "name": "playRow1",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "pBt1A",
+                                  "name": "playBtn1",
+                                  "fill": "$--card",
+                                  "cornerRadius": 8,
+                                  "gap": 6,
+                                  "padding": [
+                                    6,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "pIc1A",
+                                      "width": 14,
+                                      "height": 14,
+                                      "iconFontName": "volume-2",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--foreground"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "pTx1A",
+                                      "fill": "$--foreground",
+                                      "content": "Play",
+                                      "fontFamily": "Nunito",
+                                      "fontSize": 12,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "sBt1A",
+                                  "name": "sentenceBtn1",
+                                  "fill": "$--card",
+                                  "cornerRadius": 8,
+                                  "gap": 6,
+                                  "padding": [
+                                    6,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon_font",
+                                      "id": "sIc1A",
+                                      "width": 14,
+                                      "height": 14,
+                                      "iconFontName": "message-square",
+                                      "iconFontFamily": "lucide",
+                                      "fill": "$--foreground"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "sTx1A",
+                                      "fill": "$--foreground",
+                                      "content": "Sentence",
+                                      "fontFamily": "Nunito",
+                                      "fontSize": 12,
+                                      "fontWeight": "600"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
                               "id": "9Kz1l",
                               "name": "contextBlock1",
                               "width": "fill_container",
@@ -10321,7 +10352,7 @@
                                   "name": "eli1",
                                   "width": 12,
                                   "height": 12,
-                                  "iconFontName": "external-link",
+                                  "iconFontName": "play-circle",
                                   "iconFontFamily": "lucide",
                                   "fill": "$--primary"
                                 },
@@ -10346,33 +10377,6 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "YKUcz",
-                                  "name": "addBtn1",
-                                  "cornerRadius": 8,
-                                  "stroke": {
-                                    "align": "inside",
-                                    "thickness": 1,
-                                    "fill": "$--primary"
-                                  },
-                                  "padding": [
-                                    6,
-                                    12
-                                  ],
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "f8Ah0",
-                                      "name": "abt1",
-                                      "fill": "$--primary",
-                                      "content": "Add to Deck",
-                                      "fontFamily": "Nunito",
-                                      "fontSize": 12,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
                                   "id": "ivVZS",
                                   "name": "ignoreBtn1",
                                   "cornerRadius": 8,
@@ -10390,8 +10394,8 @@
                                       "type": "text",
                                       "id": "8djVY",
                                       "name": "ibt1",
-                                      "fill": "$--muted-foreground",
-                                      "content": "忽略",
+                                      "fill": "$--foreground",
+                                      "content": "已學習",
                                       "fontFamily": "Nunito",
                                       "fontSize": 12,
                                       "fontWeight": "600"
@@ -10628,29 +10632,6 @@
                               "gap": 8,
                               "alignItems": "center",
                               "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "nf4je",
-                                  "name": "importedBadge3",
-                                  "fill": "#DCFCE7",
-                                  "cornerRadius": 999,
-                                  "padding": [
-                                    4,
-                                    10
-                                  ],
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "fE8IL",
-                                      "name": "bgt3",
-                                      "fill": "#16A34A",
-                                      "content": "已加入",
-                                      "fontFamily": "Nunito",
-                                      "fontSize": 12,
-                                      "fontWeight": "700"
-                                    }
-                                  ]
-                                },
                                 {
                                   "type": "icon_font",
                                   "id": "RVHyH",
