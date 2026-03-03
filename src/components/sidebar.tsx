@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, BookOpen, Layers, BookMarked, Settings } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, BookOpen, Layers, BookMarked, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/hooks/use-user";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
@@ -15,6 +16,17 @@ const navItems = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useUser();
+
+  const initials = user?.name
+    ? user.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()
+    : "?";
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  }
 
   return (
     <aside className="fixed left-0 top-0 z-40 hidden h-full w-60 flex-col justify-between border-r border-border bg-card px-4 py-7 md:flex">
@@ -52,15 +64,26 @@ export function Sidebar() {
         </nav>
       </div>
 
-      {/* Bottom: User info */}
+      {/* Bottom: Avatar (→ /profile) + name/email + logout */}
       <div className="flex items-center gap-2.5 rounded-xl bg-muted px-3 py-3.5">
-        <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary">
-          <span className="font-heading text-[13px] font-bold text-white">KW</span>
-        </div>
+        <Link
+          href="/profile"
+          className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-primary transition-opacity hover:opacity-80"
+          aria-label="Go to profile"
+        >
+          <span className="font-heading text-[13px] font-bold text-white">{initials}</span>
+        </Link>
         <div className="min-w-0 flex-1">
-          <p className="font-body text-[13px] font-bold text-foreground">Kewos</p>
-          <p className="truncate font-body text-[11px] text-muted-foreground">kewos@example.com</p>
+          <p className="font-body text-[13px] font-bold text-foreground truncate">{user?.name ?? "—"}</p>
+          <p className="truncate font-body text-[11px] text-muted-foreground">{user?.email ?? ""}</p>
         </div>
+        <button
+          onClick={handleLogout}
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
+          aria-label="Log out"
+        >
+          <LogOut className="h-4 w-4" />
+        </button>
       </div>
     </aside>
   );

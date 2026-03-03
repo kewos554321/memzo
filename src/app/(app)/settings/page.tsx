@@ -10,7 +10,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background pb-24 md:pb-10">
-      <div className="flex flex-col gap-6 px-5 pb-6 pt-6 md:mx-auto md:w-full md:max-w-lg md:pt-10">
+      <div className="mx-auto flex w-full max-w-[640px] flex-col gap-6 px-4 pb-6 pt-6">
         <h1 className="font-heading text-[32px] font-bold text-foreground">Settings</h1>
 
         {/* Language Settings */}

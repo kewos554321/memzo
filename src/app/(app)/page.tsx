@@ -89,7 +89,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <div className="flex-1 overflow-auto pb-10">
-        <div className="flex flex-col gap-5 px-5 pb-6 pt-6 max-w-2xl">
+        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pb-6 pt-6">
 
           {/* Header */}
           <div className="flex items-start justify-between">

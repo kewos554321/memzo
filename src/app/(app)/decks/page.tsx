@@ -19,7 +19,7 @@ export default function DecksPage() {
   return (
     <div className="flex min-h-[100dvh] flex-col bg-background">
       <div className="flex-1 overflow-auto">
-        <div className="flex flex-col gap-5 px-5 pb-6 pt-6">
+        <div className="mx-auto flex w-full max-w-[640px] flex-col gap-5 px-4 pb-6 pt-6">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
