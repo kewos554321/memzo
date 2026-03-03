@@ -15,6 +15,7 @@ interface SentenceWithTooltipsProps {
   highlightWord?: string;
   allWords: WordEntry[];
   onStatusChange: (id: string, nextStatus: string) => void;
+  onAddWord?: (word: string, definition: string) => Promise<void>;
 }
 
 interface HoveredToken {
@@ -41,6 +42,7 @@ export function SentenceWithTooltips({
   highlightWord,
   allWords,
   onStatusChange,
+  onAddWord,
 }: SentenceWithTooltipsProps) {
   const [hovered, setHovered] = useState<HoveredToken | null>(null);
   const showTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -118,6 +120,7 @@ export function SentenceWithTooltips({
           onStatusChange={onStatusChange}
           onMouseEnter={handleTooltipEnter}
           onMouseLeave={handleWordLeave}
+          onAddWord={onAddWord}
         />
       )}
     </span>

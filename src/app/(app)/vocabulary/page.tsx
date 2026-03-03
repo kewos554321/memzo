@@ -5,7 +5,6 @@ import {
   BookMarked,
   ExternalLink,
   Loader2,
-  MessageSquare,
   PlayCircle,
   Search,
   Volume2,
@@ -128,6 +127,32 @@ export default function VocabularyPage() {
     setWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, status: nextStatus } : w))
     );
+  }
+
+  async function handleAddWordFromSentence(
+    parentWord: CapturedWord,
+    word: string,
+    definition: string
+  ) {
+    const res = await fetch("/api/words/capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ word, definition, source: parentWord.source }),
+    });
+    if (res.ok) {
+      const saved = await res.json();
+      setWords((prev) => [
+        ...prev,
+        {
+          id: saved.id,
+          word,
+          definition,
+          source: parentWord.source,
+          status: "saved",
+          capturedAt: new Date().toISOString(),
+        } as CapturedWord,
+      ]);
+    }
   }
 
   function toggleExpanded(id: string) {
@@ -270,9 +295,6 @@ export default function VocabularyPage() {
                         </span>
                       )}
                     </div>
-                    <p className="line-clamp-1 text-xs text-muted-foreground">
-                      {w.definition}
-                    </p>
                   </div>
 
                   {/* Right: context count + chevron */}
@@ -315,32 +337,35 @@ export default function VocabularyPage() {
                             Play
                           </button>
                         )}
-                        {w.source.context && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playSentence(w.source.context!);
-                            }}
-                            className="flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted"
-                          >
-                            <MessageSquare className="h-3.5 w-3.5" />
-                            Sentence
-                          </button>
-                        )}
                       </div>
                     </div>
 
                     {/* Context sentence */}
                     {w.source.context && (
-                      <div className="mb-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground">
-                        &ldquo;
-                        <SentenceWithTooltips
-                          sentence={w.source.context}
-                          highlightWord={w.source.highlightWord}
-                          allWords={words}
-                          onStatusChange={handleTooltipStatusChange}
-                        />
-                        &rdquo;
+                      <div className="mb-3 flex items-start gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            playSentence(w.source.context!);
+                          }}
+                          className="mt-0.5 shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                          title="播放句子"
+                        >
+                          <Volume2 className="h-4 w-4" />
+                        </button>
+                        <div className="flex-1 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground">
+                          &ldquo;
+                          <SentenceWithTooltips
+                            sentence={w.source.context}
+                            highlightWord={w.source.highlightWord}
+                            allWords={words}
+                            onStatusChange={handleTooltipStatusChange}
+                            onAddWord={(word, def) =>
+                              handleAddWordFromSentence(w, word, def)
+                            }
+                          />
+                          &rdquo;
+                        </div>
                       </div>
                     )}
 
@@ -359,9 +384,7 @@ export default function VocabularyPage() {
                           ) : (
                             <ExternalLink className="h-3 w-3" />
                           )}
-                          {w.source.type === "youtube"
-                            ? `YouTube${ts ? ` · ${ts}` : ""}`
-                            : `${w.source.title || w.source.type}${ts ? ` · ${ts}` : ""}`}
+                          {`${w.source.title || (w.source.type === "youtube" ? "YouTube" : w.source.type)}${ts ? ` · ${ts}` : ""}`}
                         </a>
                       </div>
                     )}

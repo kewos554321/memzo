@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Volume2 } from "lucide-react";
 import type { DictionaryEntry } from "@/app/api/dictionary/route";
 
 const POS_ABBR: Record<string, string> = {
@@ -32,6 +33,7 @@ export interface VocabularyTooltipProps {
   onStatusChange?: (wordId: string, nextStatus: string) => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  onAddWord?: (word: string, definition: string) => Promise<void>;
 }
 
 export function VocabularyTooltip({
@@ -41,8 +43,11 @@ export function VocabularyTooltip({
   onStatusChange,
   onMouseEnter,
   onMouseLeave,
+  onAddWord,
 }: VocabularyTooltipProps) {
   const [entry, setEntry] = useState<DictionaryEntry | null | undefined>(undefined);
+  const [adding, setAdding] = useState(false);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     fetch(`/api/dictionary?word=${encodeURIComponent(word)}`)
@@ -64,6 +69,14 @@ export function VocabularyTooltip({
 
   const isLearning = capturedWord?.status === "saved";
   const isMastered = capturedWord?.status === "ignored";
+
+  async function handleAddWord() {
+    if (!onAddWord || !entry?.meanings[0]?.definitions[0]) return;
+    setAdding(true);
+    await onAddWord(word, entry.meanings[0].definitions[0].definition);
+    setAdded(true);
+    setAdding(false);
+  }
 
   function handleLearningClick() {
     if (!capturedWord || !onStatusChange) return;
@@ -92,49 +105,47 @@ export function VocabularyTooltip({
         maxWidth: "300px",
         pointerEvents: "auto",
       }}
-      className="rounded-[10px] border border-white/10 bg-[#18181b] p-[12px_14px] text-left text-sm leading-relaxed shadow-[0_12px_32px_rgba(0,0,0,0.65)]"
+      className="rounded-xl border border-border bg-card p-[12px_14px] text-left text-sm leading-relaxed shadow-[0_8px_24px_rgba(13,148,136,0.12)]"
     >
       <div className="mb-1.5 flex items-center gap-2">
-        <span className="text-base font-bold text-[#f4f4f5]">{word}</span>
+        <span className="text-base font-bold text-foreground">{word}</span>
         {entry?.phonetic && (
-          <span className="text-xs text-[#a1a1aa]">{entry.phonetic}</span>
+          <span className="text-xs text-muted-foreground">{entry.phonetic}</span>
         )}
         {entry?.audioUrl && (
           <button
             onClick={playAudio}
-            className="inline-flex items-center rounded p-0.5 text-blue-400 hover:text-blue-300"
+            className="inline-flex items-center rounded-full p-1 text-primary hover:bg-muted transition-colors"
             title="播放發音"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-            </svg>
+            <Volume2 className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
       {entry === undefined ? (
-        <div className="mb-2.5 text-[13px] text-[#71717a]">載入中…</div>
+        <div className="mb-2.5 text-[13px] text-muted-foreground">載入中…</div>
       ) : entry === null || !meaningLines?.length ? (
-        <div className="mb-2.5 text-[13px] text-[#71717a]">查無此字</div>
+        <div className="mb-2.5 text-[13px] text-muted-foreground">查無此字</div>
       ) : (
         <div className="mb-2.5">
           {meaningLines.map((line, i) => (
             <div key={i} className="mb-0.5 flex gap-[5px] text-[13px]">
-              <span className="shrink-0 italic text-blue-400">{line.pos}</span>
-              <span className="text-[#d4d4d8]">{line.text}</span>
+              <span className="shrink-0 italic text-primary">{line.pos}</span>
+              <span className="text-foreground/80">{line.text}</span>
             </div>
           ))}
         </div>
       )}
 
-      {capturedWord && (
+      {capturedWord ? (
         <div className="flex gap-1.5">
           <button
             onClick={handleLearningClick}
             className={`flex flex-1 items-center justify-center gap-1 rounded-[7px] border px-2 py-[5px] text-xs font-medium transition-all ${
               isLearning
-                ? "border-blue-400/60 bg-blue-500/20 text-blue-300"
-                : "border-white/10 bg-transparent text-[#a1a1aa] hover:text-white"
+                ? "border-amber-300 bg-amber-50 text-amber-700"
+                : "border-border bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
             <span>📖</span>
@@ -144,17 +155,29 @@ export function VocabularyTooltip({
             onClick={handleMasteredClick}
             className={`flex flex-1 items-center justify-center gap-1 rounded-[7px] border px-2 py-[5px] text-xs font-medium transition-all ${
               isMastered
-                ? "border-emerald-400/60 bg-emerald-500/20 text-emerald-300"
-                : "border-white/10 bg-transparent text-[#a1a1aa] hover:text-white"
+                ? "border-primary/40 bg-teal-50 text-primary"
+                : "border-border bg-muted text-muted-foreground hover:text-foreground"
             }`}
           >
             <span>✓</span>
             {isMastered ? "取消掌握" : "已掌握"}
           </button>
         </div>
-      )}
+      ) : onAddWord && entry && !added ? (
+        <button
+          onClick={handleAddWord}
+          disabled={adding}
+          className="flex w-full items-center justify-center gap-1 rounded-[7px] border border-primary/40 bg-teal-50 px-2 py-[5px] text-xs font-medium text-primary transition-all hover:bg-teal-100 disabled:opacity-60"
+        >
+          {adding ? "加入中…" : "+ 加入學習"}
+        </button>
+      ) : added ? (
+        <div className="flex w-full items-center justify-center gap-1 rounded-[7px] border border-primary/40 bg-teal-50 px-2 py-[5px] text-xs font-medium text-primary">
+          ✓ 已加入
+        </div>
+      ) : null}
 
-      <div className="absolute bottom-[-6px] left-1/2 h-[10px] w-[10px] -translate-x-1/2 rotate-45 border-b border-r border-white/10 bg-[#18181b]" />
+      <div className="absolute bottom-[-6px] left-1/2 h-[10px] w-[10px] -translate-x-1/2 rotate-45 border-b border-r border-border bg-card" />
     </div>
   );
 }
