@@ -14,6 +14,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SentenceWithTooltips } from "@/components/vocabulary/SentenceWithTooltips";
 
 interface CapturedWord {
   id: string;
@@ -106,6 +107,19 @@ export default function VocabularyPage() {
     const word = words.find((w) => w.id === id);
     if (!word) return;
     const nextStatus = word.status === "ignored" ? "saved" : "ignored";
+    await fetch(`/api/words/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: nextStatus }),
+    });
+    setWords((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, status: nextStatus } : w))
+    );
+  }
+
+  async function handleTooltipStatusChange(id: string, nextStatus: string) {
+    const word = words.find((w) => w.id === id);
+    if (!word || word.status === nextStatus) return;
     await fetch(`/api/words/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -320,9 +334,11 @@ export default function VocabularyPage() {
                     {w.source.context && (
                       <div className="mb-3 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground">
                         &ldquo;
-                        <HighlightedContext
-                          context={w.source.context}
+                        <SentenceWithTooltips
+                          sentence={w.source.context}
                           highlightWord={w.source.highlightWord}
+                          allWords={words}
+                          onStatusChange={handleTooltipStatusChange}
                         />
                         &rdquo;
                       </div>
